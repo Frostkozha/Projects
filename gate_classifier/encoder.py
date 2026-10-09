@@ -127,7 +127,7 @@ class E5Encoder:
         self.tokenizer = HFTokenizer(local_path, tokenizer_revision)
         try:
             self._model = AutoModel.from_pretrained(local_path, revision=revision, local_files_only=True,
-                                                    trust_remote_code=False, torch_dtype=torch.float32)
+                                                    trust_remote_code=False, dtype=torch.float32)
         except Exception:  # pragma: no cover
             raise EncoderError("encoder weights unavailable") from None
         self._model.eval()
