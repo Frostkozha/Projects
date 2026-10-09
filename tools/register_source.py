@@ -21,7 +21,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from retriever.parse import resolve_import
+from retriever.parse import ImportRejected, resolve_import
 from retriever.register import SourceRecord
 
 FORMATS = {".md": "markdown", ".json": "json", ".pdf": "pdf"}
@@ -36,7 +36,10 @@ def build_record(a) -> dict:
     fmt = FORMATS.get(Path(a.file).suffix.lower())
     if fmt is None:
         raise SystemExit("unsupported format: use .md, .json or a text .pdf")
-    path = resolve_import(a.import_root, a.file, fmt, 100 * 1024 * 1024)
+    try:
+        path = resolve_import(a.import_root, a.file, fmt, 100 * 1024 * 1024)
+    except ImportRejected as exc:
+        raise SystemExit(f"cannot use '{a.file}': {exc} (the file must be inside {a.import_root})") from None
     now = datetime.now(timezone.utc).isoformat()
     rights = None
     if a.rights_ref and a.rights_reviewer and a.rights_document:
