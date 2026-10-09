@@ -23,7 +23,7 @@ encoder:
 
 reranker:
   model_id: cross-encoder/ms-marco-MiniLM-L6-v2
-  revision: null               # pin during provisioning; never invent it
+  revision: 233902d25c440f23af6f7d6e94d2946bac0bee0a   # pinned commit of the locally downloaded reranker
   local_path: artifacts/rerankers/ms-marco-MiniLM-L6-v2
   max_pair_tokens: 512
   batch_size: 8

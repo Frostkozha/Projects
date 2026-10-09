@@ -123,8 +123,9 @@ The runtime never downloads models, sources or datasets.
 
 ### Retriever known gaps
 
-- The real MiniLM reranker has not been run here (no network). Its loading/raw-logit code path is
-  tested against a tiny locally generated BERT cross-encoder; the real E5 encoder was verified on Windows.
+- Reranker pinned at revision 233902d25c440f23af6f7d6e94d2946bac0bee0a (provisioned on Windows); check it with
+  `python scripts/check_reranker.py`. Its raw-logit path is also tested here against a tiny local BERT
+  cross-encoder. The real E5 encoder was verified on Windows.
 - No approved histology corpus, rights records, item mappings, evaluation labels or evaluated threshold.
 - PDF adapter is conservative: no OCR, no table-cell inference; pages that look like tables/columns
   or are blank/scanned are quarantined for reviewed transcription.
