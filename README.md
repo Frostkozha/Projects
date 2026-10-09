@@ -121,6 +121,13 @@ python -m tools.benchmark --profile config/retriever_development.yaml --course h
 
 The runtime never downloads models, sources or datasets.
 
+### Preparing real course sources
+
+See `docs/preparing_course_sources.md`: write notes with `templates/lecture_notes_template.md`, register
+each file with `python -m tools.register_source` (computes the hash; missing rights/approval means the
+source is quarantined), then validate, build and search with `config/retriever_real_dev.yaml`
+(real models, provisional threshold, development only) and `python -m tools.search`.
+
 ### Retriever known gaps
 
 - Reranker pinned at revision 233902d25c440f23af6f7d6e94d2946bac0bee0a (provisioned on Windows); check it with
