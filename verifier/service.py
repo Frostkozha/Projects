@@ -43,7 +43,7 @@ from .evidence import EvidenceBundle, SourceRegistry, VerifierFault, current_epo
 from .format import Segmenter, validate_draft_format
 from .hard_facts import RULES_VERSION, HardFactChecker
 from .nli import NLIOutputInvalid, NLIUnavailable, to_scores
-from .policy import OutputPolicyAdapter, PolicyUnavailable
+from .policy import OutputPolicyAdapter
 
 log = logging.getLogger("verifier")
 
@@ -323,7 +323,7 @@ class Verifier:
         texts = [s.text for s in draft.sentences]
         try:
             outcome = self.policy.evaluate(ctx.redacted_request, texts, ctx.real_person_context)
-        except PolicyUnavailable:
+        except Exception:  # noqa: BLE001 - any adapter failure is unavailability, never a pass
             raise VerifierFault(OperationalError.POLICY_UNAVAILABLE) from None
         if outcome.crisis is not None:  # current request only; a generated fictional crisis cannot alert
             key = "emergency" if outcome.crisis == "emergency" else "self_harm"
@@ -431,7 +431,7 @@ class Verifier:
             kept_texts = [e.sentence.text for e in decision.kept]
             try:
                 again = self.policy.evaluate(ctx.redacted_request, kept_texts, ctx.real_person_context)
-            except PolicyUnavailable:
+            except Exception:  # noqa: BLE001
                 raise VerifierFault(OperationalError.POLICY_UNAVAILABLE) from None
             if not again.clean:
                 return self._rejected(rid, ddig, edig, _a5(ContentReason.OUTPUT_POLICY_UNCERTAIN), evals,

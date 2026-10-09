@@ -23,6 +23,10 @@ from gate_classifier.schema import (
 )
 from tests.conftest import TOPIC_NONMED, TOPIC_OUTSIDE, TOPIC_UNCLEAR, Harness, ScriptedScorer, scores
 
+# A supported free-text search answer is A2: retrieval coverage is unknown and only an approved coverage
+# signal can establish A1 (Verifier spec v0.2, section 5.6).
+SEARCH_ANSWER = ResponseCode.A2
+
 ACTIVE = ("lib1", "lib2", "lib5", "lib6")
 COURSE_Q = "Explain the structure of simple squamous epithelium."
 
@@ -81,7 +85,7 @@ def test_T04_identifiers_absent_from_model_downstream_and_logs(harness):
     text = (f"My name is {secrets[0]}, email {secrets[1]}, phone {secrets[2]}, IIN {secrets[3]}. "
             "Explain simple squamous epithelium.")
     r = harness.ask(text)
-    assert r.response_code == ResponseCode.A1
+    assert r.response_code == SEARCH_ANSWER
     payloads = harness.scorer.seen + [c.query_text for c in harness.retriever.calls] + \
         [c.question_text for c in harness.brain.calls] + [rec.model_dump_json() for rec in harness.audit.records] + \
         [r.text or ""]
@@ -107,7 +111,7 @@ def test_T05_clear_course_question_retrieves_all_active(harness):
     assert d.retrieval_plan.preferred_libraries == ("lib5", "lib1", "lib2")
     assert res.redacted_text == COURSE_Q
     r = harness.ask(COURSE_Q)
-    assert r.response_code == ResponseCode.A1
+    assert r.response_code == SEARCH_ANSWER
     assert harness.retriever.calls[0].allowed_libraries == ACTIVE
 
 
@@ -163,7 +167,7 @@ def test_T09_live_exam_answer_refused(harness):
 
 def test_T10_exam_revision_retrieves(harness):
     r = harness.ask("Help me revise simple squamous epithelium before tomorrow's exam.")
-    assert r.response_code == ResponseCode.A1
+    assert r.response_code == SEARCH_ANSWER
     assert len(harness.retriever.calls) == 1
 
 
@@ -189,7 +193,7 @@ def test_T13_ambiguous_patient_scenario_clarifies(harness):
 def test_T14_fictional_teaching_mechanism_not_blocked_for_patient_word(harness):
     r = harness.ask("For a fictional class exercise, explain how a patient's simple squamous epithelium "
                     "allows gas exchange in the alveoli.")
-    assert r.response_code == ResponseCode.A1
+    assert r.response_code == SEARCH_ANSWER
     assert len(harness.retriever.calls) == 1
 
 
@@ -307,7 +311,7 @@ def test_T24_disabled_libraries_stay_excluded(make_harness):
     assert d.prediction.libraries["lib3"] is None and d.prediction.libraries["lib4"] is None
     assert "lib3" not in d.retrieval_plan.allowed_libraries and "lib4" not in d.retrieval_plan.allowed_libraries
     r = h.ask(COURSE_Q)
-    assert r.response_code == ResponseCode.A1
+    assert r.response_code == SEARCH_ANSWER
     assert all(p.library_id not in ("lib3", "lib4") for p in h.brain.calls[0].evidence.passages)
 
 
@@ -334,7 +338,7 @@ def quiz_session(h: Harness, **kw):
 def test_T26_quiz_reply_gated_with_context_and_item_evidence(harness):
     s = quiz_session(harness)
     r = harness.ask("B", session_id=s.session_id)
-    assert r.response_code == ResponseCode.A1
+    assert r.response_code == ResponseCode.A1  # approved item evidence set carries faculty-defined full coverage
     assert "Pending question:" in harness.scorer.seen[0] and "Current request: B" in harness.scorer.seen[0]
     assert harness.retriever.calls == []  # no semantic search for "B"
     call = harness.retriever.item_calls[0]
@@ -458,7 +462,7 @@ def test_T46_crisis_rule_with_model_failure_preserved_at_decide_level():
 ])
 def test_T47_keywords_in_ordinary_discussion_do_not_hard_block(harness, text):
     r = harness.ask(text)
-    assert r.response_code == ResponseCode.A1, r.reason
+    assert r.response_code == SEARCH_ANSWER, r.reason
     assert harness.alert_queue.events == {}
 
 
@@ -466,7 +470,7 @@ def test_T48_unsupported_language_and_short_token(make_harness):
     h = make_harness(ScriptedScorer(scores(topic=TOPIC_UNCLEAR)).when("ATP", scores()))
     r = h.ask("Расскажи про эпителий")
     assert r.response_code == ResponseCode.A3 and r.text.startswith("Please name the course topic")
-    assert h.ask("ATP").response_code == ResponseCode.A1
+    assert h.ask("ATP").response_code == SEARCH_ANSWER
     h.scorer.rules.clear()
     assert h.ask("ATP").response_code == ResponseCode.A3
 
@@ -476,7 +480,7 @@ def test_T48_unsupported_language_and_short_token(make_harness):
 
 def test_T56_scientific_symbols_accepted(harness):
     r = harness.ask("How does the α-helix differ from the β-sheet, and why is the basement membrane ~50 nm (0.05 µm)?")
-    assert r.response_code == ResponseCode.A1
+    assert r.response_code == SEARCH_ANSWER
 
 
 def test_T57_unsupported_modality_text_request(harness):

@@ -5,10 +5,10 @@ from __future__ import annotations
 import pytest
 
 from gate_classifier.adapters import DraftAnswer
-from gate_classifier.orchestrator import FixtureBrain, FixtureVerifier
+from gate_classifier.orchestrator import FixtureBrain
 from gate_classifier.schema import ErrorCode, ResponseCode
 from retriever.schema import Status
-from tests.conftest import Harness, ScriptedScorer, scores
+from tests.conftest import Harness, ScriptedScorer, SpyVerifier, scores
 from tests.retriever.helpers import KB, find
 
 Q = "Explain what simple squamous epithelium lines."
@@ -30,11 +30,11 @@ def items_for(env):
 def test_end_to_end_answer_with_real_retriever(env):
     h = wire(env)
     r = h.ask(Q)
-    assert r.response_code == ResponseCode.A1, (r.http_status, r.error_code)
+    assert r.response_code == ResponseCode.A2, (r.http_status, r.error_code)  # search coverage is unknown
     assert r.citations and r.citations[0]["number"] == 1 and r.citations[0]["evidence_uri"].startswith("/v1/evidence/")
     brain_req = h.brain.calls[0]
     assert "relevance" not in brain_req.prompt and "6.25" not in brain_req.prompt  # no scores in the prompt
-    assert h.verifier.seen[0].digest == brain_req.evidence.digest  # identical evidence map
+    assert h.verifier.seen[0].evidence.shown_passage_ids == brain_req.evidence.passage_ids  # identical evidence
 
 
 def test_no_evidence_maps_to_A5_without_brain(make_env):
@@ -56,12 +56,12 @@ def test_T45_T47_quiz_flow_uses_item_fetch(make_env):
     env = make_env(items=items_for(probe))
     h = wire(env)
     first = h.ask("Quiz me on simple squamous epithelium alveoli practice item")
-    assert first.response_code == ResponseCode.A1 and first.session_id
+    assert first.response_code == ResponseCode.A2 and first.session_id
     s = h.sessions.get(first.session_id)
     assert s.pending_item_id == "item-e1" and s.state == "awaiting_response"
     searches = env.service.audit.records[:]
     reply = h.ask("B", session_id=first.session_id)
-    assert reply.response_code == ResponseCode.A1
+    assert reply.response_code == ResponseCode.A1  # approved item evidence set: faculty-defined full coverage
     new = env.service.audit.records[len(searches):]
     assert [r.operation for r in new] == ["item_fetch"]  # no semantic search for "B"
     # T47: a bare reply without pending state never reaches the retriever
@@ -85,7 +85,7 @@ def test_T52_context_budget_whole_passage_removal(make_env):
     prompt_tokens = full.brain.count_tokens(full.brain.calls[0].prompt)
     small = wire(env, brain=FixtureBrain(context_limit=prompt_tokens - 1 + 256))
     r = small.ask(Q)
-    assert r.response_code == ResponseCode.A1
+    assert r.response_code == ResponseCode.A2
     kept = small.brain.calls[0].evidence.passages
     assert 1 <= len(kept) < n_full
     assert all(p.text == env.snapshot.by_id[p.passage_id].text for p in kept)  # never trimmed mid-passage
@@ -105,13 +105,9 @@ def test_T52_required_item_set_cannot_be_thinned(make_env):
 
 
 def test_T53_evidence_map_mismatch_blocks_delivery(env):
-    from gate_classifier.adapters import VerificationResult
-
-    class WrongMap(FixtureVerifier):
-        def verify(self, draft, evidence, *a):
-            self.calls += 1
-            return VerificationResult(status="approved", evidence_digest="0" * 64, verified_text=draft.draft_text,
-                                      verifier_version="spy")
+    class WrongMap(SpyVerifier):
+        def verify(self, request, context):
+            return super().verify(request, context).model_copy(update={"evidence_digest": "0" * 64})
 
     h = wire(env, verifier=WrongMap())
     r = h.ask(Q)

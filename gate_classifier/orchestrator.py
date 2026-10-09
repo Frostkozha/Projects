@@ -1,43 +1,52 @@
 """Integration harness (spec section 11.3) with explicit development stubs.
 
 This harness proves contracts and forbidden-call behavior. It is NOT the complete tutor:
-the Fixture* adapters below are deterministic development stubs, not a retriever, a
-generative model or a claim verifier.
+the Fixture* adapters below are deterministic development stubs, not a retriever or a
+generative model. Verification always runs the real ``verifier`` pipeline; fixture NLI scores
+are injected only in tests and never satisfy production readiness.
 """
 
 from __future__ import annotations
 
 import concurrent.futures
+import re
 import threading
+import time
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Callable, Optional
+
+from contracts.models import DraftAnswer, VerificationResult, VerifyRequest
 
 from retriever.schema import ErrorCode as RErrorCode
 from retriever.schema import Reason as RReason
 from retriever.schema import Status as RStatus
 
+from verifier import digests as vdigests
+from verifier.config import load_rules
+from verifier.evidence import EvidenceBundle, RegistryUnavailable, RetrieverSourceRegistry
+from verifier.formatter import DeliveryAuthorizer, DeliveryRecord, DeliveryRefused
+from verifier.service import VerifyContext
+
 from .adapters import (
-    MODE_INSTRUCTIONS,
+    PROMPT_VERSION,
     SYSTEM_INSTRUCTION_VERSION,
     AdapterError,
     Brain,
     BrainRequest,
-    DraftAnswer,
-    EvidenceBundle,
     ItemFetchRequest,
     Passage,
+    PromptEvidence,
     RetrievalContext,
     RetrievalRequest,
     RetrievalResult,
     Retriever,
-    VerificationResult,
     Verifier,
     build_prompt,
-    check_citations,
     validate_retrieval,
 )
 from .audit import AlertEvent, AuditRecord, RestrictedTextStore
-from .config import AI_NOTICE, LibraryRegistry
+from .config import LibraryRegistry
 from .schema import (
     ERROR_HTTP_STATUS,
     ErrorCode,
@@ -55,6 +64,7 @@ from .session import InMemorySessionStore
 
 _UNAVAILABLE_CODES = {Reason.MAINTENANCE: ErrorCode.MAINTENANCE, Reason.EXAM_DISABLED: ErrorCode.EXAM_DISABLED}
 MAX_PENDING_CHARS = 300
+ROOT = Path(__file__).resolve().parents[1]
 
 
 @dataclass(frozen=True)
@@ -94,29 +104,6 @@ class DeploymentControl:
         return self.states.get(course_id, "active")
 
 
-def final_code_from_verification(v: VerificationResult, invalid_citations: tuple[str, ...]) -> str:
-    """Return one of: unavailable, A7_emergency, A7_self_harm, A6, A5, A2, A1 (spec 11.2)."""
-    if v.status == "error":
-        return "unavailable"
-    if "imminent_emergency" in v.output_policy_violations:
-        return "A7_emergency"
-    if "self_harm_crisis" in v.output_policy_violations:
-        return "A7_self_harm"
-    if v.output_policy_violations:
-        return "A6"
-    if invalid_citations or v.invalid_citations or v.status == "rejected":
-        return "A5"
-    if len(v.unsupported_claims) > 1:
-        return "A5"
-    if len(v.unsupported_claims) == 1 and not v.removal_safe:
-        return "A5"
-    if v.partial_support or v.source_conflict or len(v.unsupported_claims) == 1:
-        return "A2"
-    if not v.verified_text.strip():
-        return "A5"
-    return "A1"
-
-
 class Orchestrator:
     def __init__(self, gate: GateService, sessions: InMemorySessionStore, retriever: Retriever, brain: Brain,
                  verifier: Optional[Verifier], *, kb_version: str, topic_registry_version: str = "topics-dev-0.1",
@@ -137,6 +124,8 @@ class Orchestrator:
         self.adapter_timeout = adapter_timeout_seconds
         self._pool = concurrent.futures.ThreadPoolExecutor(max_workers=4, thread_name_prefix="adapter")
         self._lock = threading.Lock()
+        rules = getattr(verifier, "rules", None) or load_rules(ROOT / "config/verifier")
+        self.delivery = DeliveryAuthorizer(rules.notices, record_sink=self._record_delivery)
 
     # ------------------------------------------------------------------ context
 
@@ -248,10 +237,10 @@ class Orchestrator:
             raise AdapterError("brain_budget_unavailable") from None
         passages = list(evidence_passages)
         while passages:
-            bundle = EvidenceBundle.build(passages)
-            prompt = build_prompt(request_text, mode, bundle, session_context, item_context)
+            evidence = PromptEvidence(passages=tuple(passages))
+            prompt = build_prompt(request_text, mode, evidence, session_context, item_context)
             if count(prompt) <= limit:
-                return bundle, prompt
+                return evidence, prompt
             if not removable:
                 raise AdapterError("context_budget_breaks_required_evidence")
             passages.pop()
@@ -298,8 +287,8 @@ class Orchestrator:
         # required evidence sets and conflict pairs may not be thinned to fit the prompt
         removable = retrieval.coverage == "unknown" and not retrieval.conflicts
         try:
-            bundle, prompt = self._fit_context(result.redacted_text, mode, retrieval.passages, session_context,
-                                               item_context, removable)
+            shown, prompt = self._fit_context(result.redacted_text, mode, retrieval.passages, session_context,
+                                              item_context, removable)
         except AdapterError as exc:
             return self._unavailable(request_id, str(exc))
         # revocation / eligibility re-check immediately before Brain invocation
@@ -310,63 +299,112 @@ class Orchestrator:
         if problem is not None:
             return self._unavailable(request_id, "source_state_changed")
         brain_req = BrainRequest(question_text=result.redacted_text, mode=mode, session_context=session_context,
-                                 evidence=bundle, item_context=item_context,
+                                 evidence=shown, item_context=item_context,
                                  system_instruction_version=SYSTEM_INSTRUCTION_VERSION, prompt=prompt)
         try:
-            draft: DraftAnswer = self._call(self.brain.draft, brain_req)
+            draft = self._call(self.brain.draft, brain_req)
         except AdapterError as exc:
             return self._unavailable(request_id, str(exc))
+        if not isinstance(draft, DraftAnswer):
+            # an invalid generated draft is a content rejection, never inferred onto old prose
+            return self._fixed(request_id, ResponseCode.A5, "no_source", "INVALID_DRAFT", session_id)
         if draft.status == "no_evidence":
             return self._fixed(request_id, ResponseCode.A5, "no_source", "NO_EVIDENCE", session_id)
         if self.verifier is None:
             return self._unavailable(request_id, "verifier_missing")
-        invalid = check_citations(draft, bundle.passages)
+
+        # trusted evidence bundle = exactly the passages shown to the Brain, bound to this request
+        bundle = EvidenceBundle(request_id=request_id, tenant_id=ctx.tenant_id, course_id=ctx.course_id,
+                                retrieval=retrieval, shown_passage_ids=shown.passage_ids)
+        registry = self._source_registry(rctx)
         try:
-            verification: VerificationResult = self._call(self.verifier.verify, draft, bundle,
-                                                          result.redacted_text, mode, item_context)
+            vreq = VerifyRequest(schema_version="verify-request-0.2", request_id=request_id, draft=draft,
+                                 prompt_version=PROMPT_VERSION)
+            vctx = VerifyContext(
+                request_id=request_id, route="retrieve", tenant_id=ctx.tenant_id, course_id=ctx.course_id,
+                redacted_request=result.redacted_text, mode=mode.value, evidence=bundle, registry=registry,
+                deadline=time.monotonic() + self.adapter_timeout,
+                item_id=session.pending_item_id if pending_item else None,
+                item_version=session.item_version if pending_item else None,
+                coverage=retrieval.coverage,  # approved item evidence sets carry faculty-defined coverage
+                versions={"policy": ctx.policy_version, "kb": ctx.kb_version, "prompt": PROMPT_VERSION,
+                          "index": retrieval.index_version, "profile": retrieval.profile_version})
+        except Exception:
+            return self._unavailable(request_id, "verify_request_invalid")
+        try:
+            verification = self._call(self.verifier.verify, vreq, vctx)
         except AdapterError as exc:
             return self._unavailable(request_id, str(exc))
-        if verification.evidence_digest != bundle.digest:
+        if (not isinstance(verification, VerificationResult) or verification.request_id != request_id
+                or verification.draft_digest != vdigests.draft_digest(draft)
+                or verification.evidence_digest != vdigests.evidence_digest(bundle)):
             return self._unavailable(request_id, "evidence_map_mismatch")  # draft never delivered
-        outcome = final_code_from_verification(verification, invalid)
-        if outcome == "unavailable":
-            return self._unavailable(request_id, "verifier_error")
-        if outcome.startswith("A7"):
-            category = "emergency" if outcome == "A7_emergency" else "self_harm"
-            self.gate.alerts.dispatch(AlertEvent.new(request_id, self.gate.session_ref(ctx), category))
-            return self._fixed(request_id, ResponseCode.A7, category, "DRAFT_CRISIS", session_id)
-        if outcome == "A6":
-            self._audit_final(request_id, "A6", "ok", "draft_policy_violation", event="incident")
-            return self._fixed(request_id, ResponseCode.A6, "real_person", "DRAFT_POLICY_VIOLATION", session_id)
-        if outcome == "A5":
-            return self._fixed(request_id, ResponseCode.A5, "no_source", "VERIFICATION_REJECTED", session_id)
+        if verification.status == "error":
+            return self._unavailable(request_id, f"verifier_{verification.error_code.value.lower()}")
+        if verification.status == "rejected":
+            code = verification.response_code
+            if code == ResponseCode.A7:
+                category = verification.reply_key
+                self.gate.alerts.dispatch(AlertEvent.new(request_id, self.gate.session_ref(ctx), category))
+                return self._fixed(request_id, ResponseCode.A7, category, "CURRENT_REQUEST_CRISIS", session_id)
+            if code == ResponseCode.A6:
+                self._audit_final(request_id, "A6", "ok", "draft_policy_violation", event="incident")
+                return self._fixed(request_id, ResponseCode.A6, verification.reply_key, "DRAFT_POLICY_VIOLATION",
+                                   session_id)
+            return self._fixed(request_id, ResponseCode.A5, verification.reply_key, "VERIFICATION_REJECTED",
+                               session_id)
 
-        code = ResponseCode.A1 if outcome == "A1" else ResponseCode.A2
-        numbers = {pid: n for n, pid in bundle.citation_map}
-        by_id = {p.passage_id: p for p in bundle.passages}
-        cited = [by_id[pid] for pid in draft.used_passage_ids if pid in by_id]
-        citations = tuple({"number": numbers[p.passage_id], "passage_id": p.passage_id, "source_id": p.source_id,
-                           "source_version": p.source_version, "title": p.title, "locator": p.locator.label,
-                           "evidence_uri": p.evidence_uri} for p in cited)
-        text = f"{verification.verified_text.strip()}\n\n{AI_NOTICE}"
+        # delivery authorization: binding + live eligibility + record, under one lock
+        expected = (session.session_id, session.revision) if session else None
 
-        # commit the session atomically after an accepted final response
+        def session_current() -> bool:
+            if expected is None:
+                return True
+            current = self.sessions.get(expected[0])
+            return current is not None and current.revision == expected[1]
+
         try:
-            session_id = self._commit_session(ctx, mode, pending_item, bundle, draft, rctx)
+            payload, _ = self.delivery.authorize(verification, draft, bundle, registry, session_current)
+        except DeliveryRefused as exc:
+            if exc.unavailable:
+                return self._unavailable(request_id, f"delivery_{exc.code}")
+            if exc.code == "stale_session":
+                return self._error(request_id, ErrorCode.SESSION_CONFLICT)
+            return self._fixed(request_id, ResponseCode.A5, "no_source", "DELIVERY_SUPPRESSED", session_id)
+
+        # commit the session atomically after an authorized final response
+        try:
+            session_id = self._commit_session(ctx, mode, pending_item, shown, verification, rctx)
         except GateError as exc:
             return self._error(request_id, exc.code)
+        code = ResponseCode(verification.response_code.value)
         if not self._audit_final(request_id, code.value, "ok"):
             return self._unavailable(request_id, "audit_failed", audit=False)
         self.text_store.maybe_store(request_id, result.redacted_text, verification.verified_text)
-        return FinalResponse(request_id, 200, code, text, citations, session_id=session_id, reason="VERIFIED")
+        return FinalResponse(request_id, 200, code, payload.text, payload.citations, session_id=session_id,
+                             reason="VERIFIED")
+
+    def _source_registry(self, rctx: RetrievalContext):
+        factory = getattr(self.retriever, "source_registry", None)
+        if callable(factory):
+            return factory(rctx)
+        if hasattr(self.retriever, "passage_eligibility"):
+            return RetrieverSourceRegistry(self.retriever, rctx)
+        return None  # the verifier fails closed with REGISTRY_UNAVAILABLE
+
+    def _record_delivery(self, record: DeliveryRecord) -> None:
+        self.gate.audit.write(AuditRecord(event="final_response", request_id=record.request_id,
+                                          service_status="delivery_authorized",
+                                          detail_code=f"payload:{record.payload_digest[:16]}"
+                                                      f":epoch:{record.revocation_epoch}"))
 
     def _unavailable(self, request_id: str, detail: str, audit: bool = True) -> FinalResponse:
         if audit:
             self._audit_final(request_id, None, "unavailable", detail)
         return self._error(request_id, ErrorCode.SERVICE_UNAVAILABLE)
 
-    def _commit_session(self, ctx: GateContext, mode: Mode, pending_item: bool, bundle: EvidenceBundle,
-                        draft: DraftAnswer, rctx: RetrievalContext) -> Optional[str]:
+    def _commit_session(self, ctx: GateContext, mode: Mode, pending_item: bool, bundle: PromptEvidence,
+                        verification: VerificationResult, rctx: RetrievalContext) -> Optional[str]:
         s = ctx.session
         new_pending: dict = {"pending_question": None, "pending_item_id": None, "item_version": None, "state": "idle"}
         item = None
@@ -378,11 +416,11 @@ class Orchestrator:
                     if item:
                         break
         if item:
-            new_pending = {"pending_question": draft.draft_text[:MAX_PENDING_CHARS], "pending_item_id": item[0],
-                           "item_version": item[1], "state": "awaiting_response"}
+            new_pending = {"pending_question": verification.verified_text[:MAX_PENDING_CHARS],
+                           "pending_item_id": item[0], "item_version": item[1], "state": "awaiting_response"}
         elif mode == Mode.tutor and not pending_item:
-            new_pending = {"pending_question": draft.draft_text[:MAX_PENDING_CHARS], "pending_item_id": None,
-                           "item_version": None, "state": "awaiting_response"}
+            new_pending = {"pending_question": verification.verified_text[:MAX_PENDING_CHARS],
+                           "pending_item_id": None, "item_version": None, "state": "awaiting_response"}
         if s is None:
             if mode == Mode.answer:
                 return None
@@ -417,6 +455,7 @@ class FixtureRetriever:
         self.revalidate_result = revalidate_result
         self.calls: list = []
         self.item_calls: list = []
+        self.registry = FixtureSourceRegistry()
 
     def _base(self, request_id, **kw):
         return dict(request_id=request_id, kb_version=self.kb_version, index_version="fixture-index",
@@ -452,6 +491,9 @@ class FixtureRetriever:
     def revalidate(self, result, context):
         return self.revalidate_result
 
+    def source_registry(self, context):
+        return self.registry
+
     def approved_item_for(self, context, kb_version, passage_id):
         for item_id, (version, pids) in sorted(self.items.items()):
             if passage_id in pids:
@@ -459,8 +501,37 @@ class FixtureRetriever:
         return None
 
 
+_SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
+
+
+class FixtureSourceRegistry:
+    """Development stub of the trusted live registry: every supplied live passage is eligible unless revoked."""
+
+    def __init__(self, revoked: Optional[set] = None):
+        self.revoked = revoked if revoked is not None else set()
+        self._epoch = 0
+        self.down = False
+
+    def revoke(self, passage_id: str) -> None:
+        self.revoked.add(passage_id)
+        self._epoch += 1
+
+    def eligible(self, passages, kb_version):
+        if self.down:
+            raise RegistryUnavailable("fixture registry down")
+        return {p.passage_id: p.passage_id not in self.revoked for p in passages}
+
+    def epoch(self) -> int:
+        if self.down:
+            raise RegistryUnavailable("fixture registry down")
+        return self._epoch
+
+
 class FixtureBrain:
-    """Development stub: deterministic draft builder; ``script`` may override the draft."""
+    """Development stub: emits one sentence-level draft sentence copied from the first passage and citing it.
+
+    ``script`` may return any ``contracts.models.DraftAnswer``. Not a generative model.
+    """
 
     def __init__(self, script: Optional[Callable[[BrainRequest], DraftAnswer]] = None, context_limit: int = 4096,
                  reserved_output_tokens: int = 256):
@@ -480,30 +551,34 @@ class FixtureBrain:
         if self.script is not None:
             return self.script(request)
         if not request.evidence.passages:
-            return DraftAnswer(draft_text="", used_passage_ids=(), status="no_evidence")
+            return no_evidence_draft()
         p = request.evidence.passages[0]
-        lead = MODE_INSTRUCTIONS[request.mode].split(".")[0]
-        return DraftAnswer(draft_text=f"{p.text} [{p.passage_id}] ({lead}.)", used_passage_ids=(p.passage_id,),
-                           status="draft")
+        first = _SENTENCE_SPLIT.split(p.text.strip())[0]
+        return sentence_draft((first, (p.passage_id,)))
 
 
-class FixtureVerifier:
-    """Development stub: approves drafts whose citations are valid unless ``script`` says otherwise.
+def sentence_draft(*sentences: tuple, visibility: str = "student") -> DraftAnswer:
+    """Build a brain-draft-0.2 draft from (text, cites) tuples (fixture helper)."""
+    objs = [{"sentence_id": f"s{i + 1}", "text": text, "kind_hint": "factual", "visibility": visibility,
+             "cites": list(cites), "depends_on": []} for i, (text, cites) in enumerate(sentences)]
+    used = sorted({c for _, cites in sentences for c in cites})
+    return DraftAnswer.model_validate({"schema_version": "brain-draft-0.2", "status": "draft", "sentences": objs,
+                                       "used_passage_ids": used})
 
-    It does NOT check medical claims against evidence; a real verifier must. It echoes the evidence
-    digest it received so the orchestrator can prove Brain and verifier saw the same evidence map.
+
+def no_evidence_draft() -> DraftAnswer:
+    return DraftAnswer.model_validate({"schema_version": "brain-draft-0.2", "status": "no_evidence",
+                                       "sentences": [], "used_passage_ids": []})
+
+
+def fixture_verifier(score_fn: Optional[Callable] = None, audit=None):
+    """The real verifier pipeline in fixture mode with injected NLI scores (tests/development only).
+
+    Fixture scores never satisfy production readiness (Verifier spec 17).
     """
+    from verifier.nli import FixtureNLI, substring_scores  # noqa: PLC0415
+    from verifier.service import InMemoryVerifierAudit, Verifier  # noqa: PLC0415
 
-    def __init__(self, script: Optional[Callable[..., VerificationResult]] = None):
-        self.script = script
-        self.calls = 0
-        self.seen: list[EvidenceBundle] = []
-
-    def verify(self, draft, evidence, request_text, mode, item_context) -> VerificationResult:
-        self.calls += 1
-        self.seen.append(evidence)
-        if self.script is not None:
-            v = self.script(draft, evidence.passages)
-            return v if v.evidence_digest else v.model_copy(update={"evidence_digest": evidence.digest})
-        return VerificationResult(status="approved", evidence_digest=evidence.digest, verified_text=draft.draft_text,
-                                  supported_claims=draft.used_passage_ids, verifier_version="fixture-verifier")
+    return Verifier.from_profile(ROOT / "config/verifier_development.yaml",
+                                 audit=audit if audit is not None else InMemoryVerifierAudit(),
+                                 fixture_backend=FixtureNLI(score_fn or substring_scores))
