@@ -1,19 +1,34 @@
-"""Retriever, Brain, verifier and alert adapter contracts (spec sections 10.1, 11).
+"""Retriever, Brain, verifier and alert adapter contracts (Gate spec 10.1, 11; Retriever spec 6, 7, 12).
 
-These are typed contracts plus deterministic validation helpers. Providing fixture adapters
-does NOT implement the complete tutor.
+Retrieval types are imported from ``retriever.schema`` - the single canonical contract - rather than
+redefined here. Providing fixture adapters does NOT implement the complete tutor.
 """
 
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 from typing import Literal, Optional, Protocol
 
-from pydantic import BaseModel, ConfigDict, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict
 
-from .schema import LIBRARY_IDS, EmbeddingRef, Mode
+from retriever.schema import (  # canonical retrieval contract
+    EvidencePassage,
+    ItemFetchRequest,
+    RetrievalContext,
+    RetrievalRequest,
+    RetrievalResult,
+    Status,
+)
 
+from .schema import Mode
+
+Passage = EvidencePassage
 MAX_PASSAGES = 5
+
+__all__ = ["Passage", "EvidencePassage", "ItemFetchRequest", "RetrievalContext", "RetrievalRequest",
+           "RetrievalResult", "Status"]
 
 
 class AdapterError(RuntimeError):
@@ -24,68 +39,19 @@ class _M(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
 
-class RetrievalRequest(_M):
-    query_text: str
-    allowed_libraries: tuple[str, ...]
-    preferred_libraries: tuple[str, ...] = ()
-    course_id: str
-    kb_version: str
-    embedding_ref: Optional[EmbeddingRef] = None
-    pending_item_id: Optional[str] = None
-    item_version: Optional[str] = None
+class EvidenceBundle(_M):
+    """The exact evidence and citation map shared by Brain, verifier and the displayed answer."""
 
-    @field_validator("allowed_libraries")
+    passages: tuple[EvidencePassage, ...]
+    citation_map: tuple[tuple[int, str], ...]  # (display number 1..5, passage_id)
+    digest: str
+
     @classmethod
-    def _non_empty(cls, v):
-        # An empty list never means "search everything".
-        if not v:
-            raise ValueError("allowed_libraries must not be empty")
-        if any(lib not in LIBRARY_IDS for lib in v):
-            raise ValueError("unknown library id")
-        return v
-
-    @model_validator(mode="after")
-    def _preferred_subset(self):
-        if not set(self.preferred_libraries) <= set(self.allowed_libraries):
-            raise ValueError("preferred libraries must be a subset of allowed libraries")
-        return self
-
-
-class Passage(_M):
-    passage_id: str
-    source_id: str
-    source_version: str
-    title: str
-    library_id: str
-    locator: str
-    text: str
-    review_status: Literal["approved", "under_review", "archived", "unapproved"]
-    rights_reference: str
-    relevance_score: float
-
-
-class SourceConflict(_M):
-    conflict_id: str
-    passage_ids: tuple[str, ...]
-    status: Literal["approved_conflict_record"]
-
-
-class RetrievalResult(_M):
-    status: Literal["ok", "no_evidence", "error"]
-    passages: tuple[Passage, ...] = ()
-    coverage: Literal["full", "partial", "unknown"] = "unknown"
-    conflicts: tuple[SourceConflict, ...] = ()
-    kb_version: str
-    retrieval_policy_version: str
-
-    @model_validator(mode="after")
-    def _limits(self):
-        if len(self.passages) > MAX_PASSAGES:
-            raise ValueError("too many passages")
-        ids = [p.passage_id for p in self.passages]
-        if len(ids) != len(set(ids)):
-            raise ValueError("duplicate passage ids")
-        return self
+    def build(cls, passages) -> "EvidenceBundle":
+        passages = tuple(passages)
+        cmap = tuple((i + 1, p.passage_id) for i, p in enumerate(passages))
+        blob = json.dumps([[n, p.passage_id, p.text_sha256] for (n, _), p in zip(cmap, passages)])
+        return cls(passages=passages, citation_map=cmap, digest=hashlib.sha256(blob.encode()).hexdigest())
 
 
 class DraftAnswer(_M):
@@ -98,13 +64,15 @@ class BrainRequest(_M):
     question_text: str  # redacted
     mode: Mode
     session_context: Optional[str]
-    passages: tuple[Passage, ...]
+    evidence: EvidenceBundle
     item_context: Optional[str] = None
     system_instruction_version: str
+    prompt: str  # the exact, fully token-counted prompt
 
 
 class VerificationResult(_M):
     status: Literal["approved", "rejected", "error"]
+    evidence_digest: str = ""  # must echo the bundle digest it verified against
     verified_text: str = ""
     supported_claims: tuple[str, ...] = ()
     unsupported_claims: tuple[str, ...] = ()
@@ -120,15 +88,24 @@ class VerificationResult(_M):
 
 
 class Retriever(Protocol):
-    def retrieve(self, request: RetrievalRequest) -> RetrievalResult: ...
+    def retrieve(self, request, context: RetrievalContext) -> RetrievalResult: ...
+
+    def fetch_item_evidence(self, request, context: RetrievalContext) -> RetrievalResult: ...
+
+    def revalidate(self, result: RetrievalResult, context: RetrievalContext): ...
 
 
 class Brain(Protocol):
+    context_limit: int
+    reserved_output_tokens: int
+
+    def count_tokens(self, text: str) -> int: ...
+
     def draft(self, request: BrainRequest) -> DraftAnswer: ...
 
 
 class Verifier(Protocol):
-    def verify(self, draft: DraftAnswer, passages: tuple[Passage, ...], request_text: str,
+    def verify(self, draft: DraftAnswer, evidence: EvidenceBundle, request_text: str,
                mode: Mode, item_context: Optional[str]) -> VerificationResult: ...
 
 
@@ -150,24 +127,36 @@ MODE_INSTRUCTIONS = {
 CITATION_RE = re.compile(r"\[(?:p:)?([A-Za-z0-9_.:-]+)\]")
 
 
-def validate_retrieval(result: RetrievalResult, request: RetrievalRequest) -> None:
-    """Deterministic checks of evidence permissions/versions. Raises AdapterError."""
-    if result.status == "error":
+def build_prompt(question: str, mode: Mode, evidence: EvidenceBundle, session_context: Optional[str],
+                 item_context: Optional[str]) -> str:
+    """Deterministic prompt; scores, paths and credentials are never included."""
+    parts = [SYSTEM_INSTRUCTION, f"Mode: {MODE_INSTRUCTIONS[mode]}"]
+    if session_context:
+        parts.append(f"Study topic: {session_context}")
+    if item_context:
+        parts.append(f"Approved item: {item_context}")
+    for (n, pid), p in zip(evidence.citation_map, evidence.passages):
+        parts.append(f"[{n}] [{pid}] {p.title} ({p.locator.label}):\n{p.text}")
+    parts.append(f"Question: {question}")
+    return "\n\n".join(parts)
+
+
+def validate_retrieval(result: RetrievalResult, allowed: tuple[str, ...], kb_version: str) -> None:
+    """Orchestrator-side deterministic checks of evidence permissions/versions. Raises AdapterError."""
+    if result.status == Status.error:
         raise AdapterError("retrieval_error")
-    if result.kb_version != request.kb_version:
+    if result.kb_version != kb_version:
         raise AdapterError("kb_version_mismatch")
-    allowed = set(request.allowed_libraries)
     for p in result.passages:
         if p.library_id not in allowed:
             raise AdapterError("unauthorized_library")
-        if p.review_status != "approved":
+        if p.review_status != "live":
             raise AdapterError("unapproved_passage")
-    if result.status == "ok" and not result.passages:
-        raise AdapterError("ok_without_passages")
 
 
-def check_citations(draft: DraftAnswer, passages: tuple[Passage, ...]) -> tuple[str, ...]:
+def check_citations(draft: DraftAnswer, passages) -> tuple[str, ...]:
     """Return invalid citation IDs (cited or declared IDs not in the permitted passages)."""
     permitted = {p.passage_id for p in passages}
     cited = set(CITATION_RE.findall(draft.draft_text)) | set(draft.used_passage_ids)
+    cited -= {str(n) for n in range(1, MAX_PASSAGES + 1)}  # display numbers are not IDs
     return tuple(sorted(cited - permitted))

@@ -8,8 +8,8 @@ rules_version: gate-rules-0.2
 
 encoder:
   model_id: intfloat/e5-small-v2
-  revision: null                 # pin an exact commit during bootstrap; required outside fixture mode
-  tokenizer_revision: null
+  revision: ffb93f3bd4047442299a41ebb6fa998a38507c52   # pinned commit of the locally downloaded model
+  tokenizer_revision: ffb93f3bd4047442299a41ebb6fa998a38507c52
   local_path: artifacts/encoders/e5-small-v2
   prefix: "query: "
   pooling: mean

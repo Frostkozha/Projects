@@ -55,6 +55,7 @@ preshed==3.0.13
 pydantic==2.14.0
 pydantic_core==2.50.0
 Pygments==2.21.0
+pypdf==6.20.0
 pytest==9.1.1
 PyYAML==6.0.3
 regex==2026.9.29

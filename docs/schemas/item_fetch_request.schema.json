@@ -1,0 +1,34 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "item_id": {
+      "title": "Item Id",
+      "type": "string"
+    },
+    "item_version": {
+      "title": "Item Version",
+      "type": "string"
+    },
+    "course_id": {
+      "title": "Course Id",
+      "type": "string"
+    },
+    "kb_version": {
+      "title": "Kb Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "request_id",
+    "item_id",
+    "item_version",
+    "course_id",
+    "kb_version"
+  ],
+  "title": "ItemFetchRequest",
+  "type": "object"
+}

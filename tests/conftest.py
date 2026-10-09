@@ -60,17 +60,26 @@ class ScriptedScorer:
 
 
 def passages() -> list[Passage]:
-    def p(pid, lib, text):
+    import hashlib
+
+    def p(pid, lib, text, slide):
         return Passage(passage_id=pid, source_id=f"src-{lib}", source_version="v1", title=f"Fixture {lib}",
-                       library_id=lib, locator="slide 1", text=text, review_status="approved",
-                       rights_reference="fixture-rights", relevance_score=0.9)
+                       library_id=lib, locator={"kind": "slide", "start": slide, "end": slide,
+                                                "label": f"Slide {slide}", "anchor": None},
+                       section_path=("Epithelium",), edition=None, publication_year=None, text=text,
+                       text_sha256=hashlib.sha256(text.encode()).hexdigest(), review_status="live",
+                       rights_reference="fixture-rights", relevance_score=6.25, score_type="cross_encoder_logit",
+                       evidence_uri=f"/v1/evidence/{pid}?kb_version={KB}")
 
     return [
-        p("fixture-p1", "lib1", "Simple squamous epithelium is a single layer of flat cells (fixture text)."),
-        p("fixture-p2", "lib2", "It lines alveoli and blood vessels (fixture text)."),
-        p("fixture-q1", "lib5", "Practice item: Which epithelium lines alveoli? A) stratified B) simple squamous."),
-        p("fixture-p3", "lib3", "DISABLED clinical protocol passage that must never be returned."),
+        p("fixture-p1", "lib1", "Simple squamous epithelium is a single layer of flat cells (fixture text).", 1),
+        p("fixture-p2", "lib2", "It lines alveoli and blood vessels (fixture text).", 2),
+        p("fixture-q1", "lib5", "Practice item: Which epithelium lines alveoli? A) stratified B) simple squamous.", 3),
+        p("fixture-p3", "lib3", "DISABLED clinical protocol passage that must never be returned.", 4),
     ]
+
+
+ITEMS = {"item-e1": ("v1", ("fixture-q1", "fixture-p1"))}
 
 
 class Harness:
@@ -94,7 +103,7 @@ class Harness:
             audit=self.audit, alert_dispatcher=self.dispatcher, alarms=self.alarms,
         )
         self.sessions = InMemorySessionStore(cfg.runtime.session_ttl_minutes)
-        self.retriever = retriever or FixtureRetriever(passages(), KB)
+        self.retriever = retriever or FixtureRetriever(passages(), KB, items=ITEMS)
         self.brain = brain or FixtureBrain()
         self.verifier = FixtureVerifier() if verifier == "default" else verifier
         self.orch = Orchestrator(self.service, self.sessions, self.retriever, self.brain, self.verifier, kb_version=KB)

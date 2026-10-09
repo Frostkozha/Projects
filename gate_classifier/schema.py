@@ -385,23 +385,8 @@ class GateDecision(BaseModel):
         return self
 
 
-class EmbeddingRef:
-    """Internal, non-serializable reference to a gate vector. Never logged or returned."""
-
-    __slots__ = ("_vector", "fingerprint", "text_sha256")
-
-    def __init__(self, vector, fingerprint: str, text_sha256: str):
-        self._vector = vector
-        self.fingerprint = fingerprint
-        self.text_sha256 = text_sha256
-
-    def vector_if_compatible(self, fingerprint: str, text_sha256: str):
-        if fingerprint == self.fingerprint and text_sha256 == self.text_sha256:
-            return self._vector
-        return None
-
-    def __repr__(self) -> str:  # never print the vector
-        return "EmbeddingRef(<redacted>)"
+# Canonical internal vector reference shared with the retriever (never serialized or logged).
+from retriever.schema import EmbeddingRef  # noqa: E402
 
 
 class GateResult:

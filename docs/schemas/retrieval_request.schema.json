@@ -1,0 +1,52 @@
+{
+  "additionalProperties": false,
+  "description": "Exactly the spec's fields. Library list validity is checked by the service (typed errors).",
+  "properties": {
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "query_text": {
+      "title": "Query Text",
+      "type": "string"
+    },
+    "allowed_libraries": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Allowed Libraries",
+      "type": "array"
+    },
+    "preferred_libraries": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Preferred Libraries",
+      "type": "array"
+    },
+    "course_id": {
+      "title": "Course Id",
+      "type": "string"
+    },
+    "kb_version": {
+      "title": "Kb Version",
+      "type": "string"
+    },
+    "strategy": {
+      "const": "all_active",
+      "title": "Strategy",
+      "type": "string"
+    }
+  },
+  "required": [
+    "request_id",
+    "query_text",
+    "allowed_libraries",
+    "preferred_libraries",
+    "course_id",
+    "kb_version",
+    "strategy"
+  ],
+  "title": "RetrievalRequest",
+  "type": "object"
+}
