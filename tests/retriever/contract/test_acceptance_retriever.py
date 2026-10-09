@@ -537,7 +537,7 @@ def test_T44_fixture_artifacts_refused_outside_fixture_mode(env):
                         revocations=env.revocations, snapshots_root=str(env.snapshots_root), now=lambda: NOW)
     reasons = svc.readiness().reasons
     assert not svc.readiness().ready
-    assert {"fixture_encoder_not_allowed", "fixture_reranker_not_allowed", "reranker_revision_unpinned"} <= set(reasons)
+    assert {"fixture_encoder_not_allowed", "fixture_reranker_not_allowed"} <= set(reasons)
     assert any("fixture_snapshot_not_allowed" in r for r in reasons)
 
 
@@ -661,17 +661,23 @@ def test_T56_import_path_rules(tmp_path):
     root.mkdir()
     (root / "ok.md").write_text("# A\n\nText.")
     (tmp_path / "secret.md").write_text("outside")
-    (root / "link.md").symlink_to(tmp_path / "secret.md")
+    try:
+        (root / "link.md").symlink_to(tmp_path / "secret.md")
+        has_link = True
+    except OSError:  # Windows without symlink privilege: the traversal cases below still run
+        has_link = False
     (root / "big.md").write_bytes(b"x" * 2048)
     (root / "notes.exe").write_text("x")
     for ref, fmt, reason in (("../secret.md", "markdown", "path_escapes_import_root"),
-                             ("link.md", "markdown", "path_escapes_import_root"),
                              ("/etc/passwd", "markdown", "not_a_relative_local_path"),
                              ("https://example.org/a.md", "markdown", "not_a_relative_local_path"),
                              ("notes.exe", "markdown", "unsupported_format"),
                              ("big.md", "markdown", "file_too_large")):
         with pytest.raises(ImportRejected, match=reason):
             resolve_import(root, ref, fmt, 1024)
+    if has_link:
+        with pytest.raises(ImportRejected, match="path_escapes_import_root"):
+            resolve_import(root, "link.md", "markdown", 1024)
     assert resolve_import(root, "ok.md", "markdown", 1024).name == "ok.md"
 
 
@@ -773,3 +779,10 @@ def test_T44_artifact_hash_mismatch_refused(env):
     with pytest.raises(SnapshotError):
         env.service.snapshots.activate(COURSE, "fixture-index-z")
     assert env.service.snapshots.active_version(COURSE) == "fixture-index-002"
+
+
+def test_unpinned_reranker_not_ready(env):
+    dev = env.profile.model_copy(update={"operating_mode": "real_model_development",
+                                         "reranker": env.profile.reranker.model_copy(update={"revision": None}),
+                                         "threshold": env.profile.threshold.model_copy(update={"status": "provisional"})})
+    assert "reranker_revision_unpinned" in dev.readiness_problems()
