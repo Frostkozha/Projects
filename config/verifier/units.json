@@ -1,0 +1,19 @@
+{
+  "review": {"status": "development", "note": "Aliases only; no conversion pairs are enabled until reviewed."},
+  "aliases": {
+    "mg": "mg", "milligram": "mg", "milligrams": "mg",
+    "mcg": "mcg", "µg": "mcg", "μg": "mcg", "ug": "mcg", "microgram": "mcg", "micrograms": "mcg",
+    "g": "g", "gram": "g", "grams": "g", "kg": "kg",
+    "mg/kg": "mg/kg", "mcg/kg": "mcg/kg",
+    "ml": "mL", "mL": "mL", "l": "L", "L": "L",
+    "nm": "nm", "nanometre": "nm", "nanometer": "nm", "nanometres": "nm", "nanometers": "nm",
+    "µm": "um", "μm": "um", "um": "um", "micrometre": "um", "micrometer": "um", "micrometres": "um", "micrometers": "um",
+    "mm": "mm", "millimetre": "mm", "millimeter": "mm", "millimetres": "mm", "millimeters": "mm",
+    "cm": "cm", "m": "m",
+    "%": "percent", "percent": "percent", "per cent": "percent",
+    "mmhg": "mmHg", "mmHg": "mmHg",
+    "days": "day", "day": "day", "weeks": "week", "week": "week", "hours": "hour", "hour": "hour",
+    "layer": "layer", "layers": "layer"
+  },
+  "conversions": []
+}

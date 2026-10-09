@@ -1,0 +1,13 @@
+# TEST-ONLY threshold profile (Verifier spec section 8). Synthetic decision fixtures used to exercise
+# boundaries; NOT recommended medical thresholds. release_ready is false and cannot serve students.
+profile_id: fixture-thresholds-0.2
+model_digest: null
+tokenizer_digest: null
+calibration_version: null
+Tc: 0.30
+T_lo: 0.50
+T_hi: 0.90
+development_split_digest: null
+approval_record_id: null
+evaluation_report_digest: null
+release_ready: false

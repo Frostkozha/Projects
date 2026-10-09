@@ -1,0 +1,10 @@
+{
+  "review": {"status": "development", "note": "Fixed code-owned wording; project approval required before release."},
+  "notices": {
+    "ai_notice": "AI-generated study aid. Check against your course material.",
+    "partial": "I could verify only part of this explanation against the supplied course material.",
+    "coverage_unknown": "This explanation covers only what the supplied course material states.",
+    "conflict": "The approved sources differ on this point. Both positions are shown and the difference has been flagged for faculty review.",
+    "a4_disclaimer": "This is general educational information, not advice about any person."
+  }
+}
