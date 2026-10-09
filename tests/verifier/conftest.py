@@ -9,7 +9,7 @@ from typing import Callable, Optional
 
 import pytest
 
-from contracts.models import DraftAnswer, DraftSentence, VerifyRequest
+from contracts.models import DraftAnswer, VerifyRequest
 from retriever.schema import ConflictOut, EvidencePassage, Reason, RetrievalResult, Status
 from verifier.evidence import EvidenceBundle, RegistryUnavailable
 from verifier.nli import FixtureNLI

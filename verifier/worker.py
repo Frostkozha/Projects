@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import itertools
 import multiprocessing as mp
-import queue
 import threading
 import time
 from typing import Optional, Sequence
@@ -98,7 +97,8 @@ def _child_main(conn, backend_spec: dict):
             return
         attempt, pairs, batch = msg
         try:
-            out = [np.asarray(backend.logits(pairs[i:i + batch]), dtype=np.float64) for i in range(0, len(pairs), batch)]
+            out = [np.asarray(backend.logits(pairs[i:i + batch]), dtype=np.float64)
+                   for i in range(0, len(pairs), batch)]
             conn.send(("ok", attempt, np.vstack(out) if out else np.zeros((0, 3))))
         except Exception:  # noqa: BLE001
             conn.send(("error", attempt, None))

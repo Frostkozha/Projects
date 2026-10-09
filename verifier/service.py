@@ -320,9 +320,10 @@ class Verifier:
         # ---- layer 0b: contextual output policy (request + trusted context + draft)
         if self.policy is None:
             raise VerifierFault(OperationalError.POLICY_UNAVAILABLE)
-        texts = [s.text for s in draft.sentences]
+        visible = [s.text for s in draft.sentences if s.visibility == "student"]
+        hidden = tuple(s.text for s in draft.sentences if s.visibility == "internal")
         try:
-            outcome = self.policy.evaluate(ctx.redacted_request, texts, ctx.real_person_context)
+            outcome = self.policy.evaluate(ctx.redacted_request, visible, ctx.real_person_context, hidden)
         except Exception:  # noqa: BLE001 - any adapter failure is unavailability, never a pass
             raise VerifierFault(OperationalError.POLICY_UNAVAILABLE) from None
         if outcome.crisis is not None:  # current request only; a generated fictional crisis cannot alert
@@ -380,17 +381,16 @@ class Verifier:
                 ev.checks["format"] = "fail"
                 return self._rejected(rid, ddig, edig, _a5(ContentReason.INVALID_DRAFT), evals, invalid=invalid)
 
-        # ---- layer 2: hard facts (any mismatch rejects; unresolved pairs cannot support)
+        # ---- layer 2: hard facts. A sentence needs at least one cited passage whose deterministic
+        # constraints pass; a failing pair can never support it (and rejects it if NLI would accept it).
         for ev in live:
             for pid in ev.sentence.cites:
                 ev.pairs[pid] = PairOutcome(pid, self.hard_facts.check(ev.sentence.text, supplied[pid].text))
             statuses = [p.hard_fact.status for p in ev.pairs.values()]
-            if "fail" in statuses:
+            if not any(st in ("pass", "not_applicable") for st in statuses):
                 ev.checks["hard_fact"] = "fail"
-                ev.reasons.append(ContentReason.HARD_FACT_MISMATCH)
-            elif all(st == "unresolved" for st in statuses):
-                ev.checks["hard_fact"] = "fail"
-                ev.reasons.append(ContentReason.HARD_FACT_UNRESOLVED)
+                ev.reasons.append(ContentReason.HARD_FACT_MISMATCH if "fail" in statuses
+                                  else ContentReason.HARD_FACT_UNRESOLVED)
             else:
                 ev.checks["hard_fact"] = "pass"
         self._tick(deadline)
@@ -428,9 +428,10 @@ class Verifier:
             return self._rejected(rid, ddig, edig, decision, evals, invalid=invalid)
         if decision.trimmed:
             # recheck output policy and live eligibility on the exact remainder (no rewording)
-            kept_texts = [e.sentence.text for e in decision.kept]
+            kept_visible = [e.sentence.text for e in decision.kept if e.visible]
+            kept_hidden = tuple(e.sentence.text for e in decision.kept if not e.visible)
             try:
-                again = self.policy.evaluate(ctx.redacted_request, kept_texts, ctx.real_person_context)
+                again = self.policy.evaluate(ctx.redacted_request, kept_visible, ctx.real_person_context, kept_hidden)
             except Exception:  # noqa: BLE001
                 raise VerifierFault(OperationalError.POLICY_UNAVAILABLE) from None
             if not again.clean:

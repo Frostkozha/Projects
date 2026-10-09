@@ -75,6 +75,11 @@ def apply_nli(ev: SentenceEval, th: ThresholdProfile) -> None:
     if any(lab == "contradiction" for lab in labels.values()):
         ev.reasons.append(ContentReason.CONTRADICTED)
         return
+    if any(lab == "supported" and ev.pairs[pid].hard_fact.status == "fail" for pid, lab in labels.items()):
+        # a top NLI score cannot rescue a deterministic mismatch (lexical false support)
+        ev.checks["hard_fact"] = "fail"
+        ev.reasons.append(ContentReason.HARD_FACT_MISMATCH)
+        return
     support = [pid for pid in ev.sentence.cites
                if labels.get(pid) == "supported" and ev.pairs[pid].hard_fact.status in ("pass", "not_applicable")]
     if not support:

@@ -15,14 +15,15 @@ dependencies = [
   "fastapi",
   "uvicorn",
   "pypdf",
+  "spacy",
 ]
 
 [project.optional-dependencies]
-model = ["torch", "transformers", "spacy"]
+model = ["torch", "transformers"]
 dev = ["pytest", "httpx"]
 
 [tool.setuptools.packages.find]
-include = ["gate_classifier*", "training*", "retriever*", "tools*"]
+include = ["gate_classifier*", "training*", "retriever*", "tools*", "contracts*", "verifier*", "evaluation*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
