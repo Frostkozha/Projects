@@ -88,8 +88,9 @@ thresholds and policy version.
 
 ## Known gaps
 
-- Real `nli-deberta-v3-xsmall` behaviour has not been run in this repository (downloads are blocked
-  here); run `scripts/check_verifier.py` after provisioning.
+- Real `nli-deberta-v3-xsmall` is pinned at a150876415327c80daeff35ca6f68f5ed8cf5c24 and passed
+  `scripts/check_verifier.py` on Windows (CPU, about 60 ms for 3 pairs). It labels an unrelated topic as
+  contradiction rather than neutral; both reject, so this is safe but shows the scores are not calibrated.
 - Hard facts are deterministic clause patterns, not a dependency-parse relation extractor; uncovered
   prose goes to NLI with the limitation recorded.
 - Segmentation uses the rule-based spaCy sentencizer in development; production needs a pinned

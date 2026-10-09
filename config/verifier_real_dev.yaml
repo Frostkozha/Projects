@@ -6,10 +6,10 @@ operating_mode: real_model_development   # pinned local model, development only,
 git_commit: null
 nli:
   model_id: cross-encoder/nli-deberta-v3-xsmall
-  revision: null               # pin the exact 40-character commit you provision; never invent it
+  revision: a150876415327c80daeff35ca6f68f5ed8cf5c24   # pinned commit, provisioned and checked on Windows
   local_path: artifacts/verifier/nli-deberta-v3-xsmall
   expected_labels: {"0": contradiction, "1": entailment, "2": neutral}
-  weights_sha256: null
+  weights_sha256: 4e4fc4977f8d29d2a164255c8f69b9d6c158deeb309bb5e70445b94666ccd9e9
   max_premise_tokens: 384
   max_hypothesis_tokens: 96
   max_pair_tokens: 512
