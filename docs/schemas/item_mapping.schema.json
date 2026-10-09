@@ -1,0 +1,61 @@
+{
+  "$defs": {
+    "EvidenceSet": {
+      "additionalProperties": false,
+      "properties": {
+        "passage_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Passage Ids",
+          "type": "array"
+        },
+        "coverage": {
+          "default": "full",
+          "enum": [
+            "full",
+            "partial"
+          ],
+          "title": "Coverage",
+          "type": "string"
+        }
+      },
+      "required": [
+        "passage_ids"
+      ],
+      "title": "EvidenceSet",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Faculty-authored item -> alternative sufficient evidence sets (one complete set suffices).",
+  "properties": {
+    "item_id": {
+      "title": "Item Id",
+      "type": "string"
+    },
+    "item_version": {
+      "title": "Item Version",
+      "type": "string"
+    },
+    "approved": {
+      "title": "Approved",
+      "type": "boolean"
+    },
+    "evidence_sets": {
+      "items": {
+        "$ref": "#/$defs/EvidenceSet"
+      },
+      "title": "Evidence Sets",
+      "type": "array"
+    }
+  },
+  "required": [
+    "item_id",
+    "item_version",
+    "approved",
+    "evidence_sets"
+  ],
+  "title": "ItemMapping",
+  "type": "object"
+}

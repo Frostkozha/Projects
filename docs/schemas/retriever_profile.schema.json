@@ -1,0 +1,414 @@
+{
+  "$defs": {
+    "EncoderProfile": {
+      "additionalProperties": false,
+      "properties": {
+        "model_id": {
+          "default": "intfloat/e5-small-v2",
+          "title": "Model Id",
+          "type": "string"
+        },
+        "revision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Revision"
+        },
+        "tokenizer_revision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tokenizer Revision"
+        },
+        "local_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Local Path"
+        },
+        "query_prefix": {
+          "default": "query: ",
+          "title": "Query Prefix",
+          "type": "string"
+        },
+        "passage_prefix": {
+          "default": "passage: ",
+          "title": "Passage Prefix",
+          "type": "string"
+        },
+        "pooling": {
+          "const": "mean",
+          "default": "mean",
+          "title": "Pooling",
+          "type": "string"
+        },
+        "normalization": {
+          "const": "l2",
+          "default": "l2",
+          "title": "Normalization",
+          "type": "string"
+        },
+        "dtype": {
+          "const": "float32",
+          "default": "float32",
+          "title": "Dtype",
+          "type": "string"
+        },
+        "dimension": {
+          "default": 384,
+          "title": "Dimension",
+          "type": "integer"
+        },
+        "max_tokens": {
+          "default": 512,
+          "title": "Max Tokens",
+          "type": "integer"
+        },
+        "torch_threads": {
+          "default": 2,
+          "title": "Torch Threads",
+          "type": "integer"
+        }
+      },
+      "title": "EncoderProfile",
+      "type": "object"
+    },
+    "Limits": {
+      "additionalProperties": false,
+      "properties": {
+        "max_query_chars": {
+          "default": 4000,
+          "title": "Max Query Chars",
+          "type": "integer"
+        },
+        "max_query_tokens": {
+          "default": 320,
+          "title": "Max Query Tokens",
+          "type": "integer"
+        },
+        "chunk_target_tokens": {
+          "default": 144,
+          "title": "Chunk Target Tokens",
+          "type": "integer"
+        },
+        "chunk_max_tokens": {
+          "default": 160,
+          "title": "Chunk Max Tokens",
+          "type": "integer"
+        },
+        "heading_max_tokens": {
+          "default": 24,
+          "title": "Heading Max Tokens",
+          "type": "integer"
+        },
+        "overlap_max_tokens": {
+          "default": 24,
+          "title": "Overlap Max Tokens",
+          "type": "integer"
+        },
+        "pair_reserve_tokens": {
+          "default": 8,
+          "title": "Pair Reserve Tokens",
+          "type": "integer"
+        },
+        "max_passages_per_snapshot": {
+          "default": 50000,
+          "title": "Max Passages Per Snapshot",
+          "type": "integer"
+        },
+        "max_file_bytes": {
+          "default": 104857600,
+          "title": "Max File Bytes",
+          "type": "integer"
+        },
+        "max_pdf_pages": {
+          "default": 2000,
+          "title": "Max Pdf Pages",
+          "type": "integer"
+        },
+        "max_body_bytes": {
+          "default": 32768,
+          "title": "Max Body Bytes",
+          "type": "integer"
+        }
+      },
+      "title": "Limits",
+      "type": "object"
+    },
+    "RerankerProfile": {
+      "additionalProperties": false,
+      "properties": {
+        "model_id": {
+          "default": "cross-encoder/ms-marco-MiniLM-L6-v2",
+          "title": "Model Id",
+          "type": "string"
+        },
+        "revision": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Revision"
+        },
+        "local_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Local Path"
+        },
+        "max_pair_tokens": {
+          "default": 512,
+          "title": "Max Pair Tokens",
+          "type": "integer"
+        },
+        "batch_size": {
+          "default": 8,
+          "maximum": 8,
+          "minimum": 1,
+          "title": "Batch Size",
+          "type": "integer"
+        },
+        "torch_threads": {
+          "default": 2,
+          "title": "Torch Threads",
+          "type": "integer"
+        }
+      },
+      "title": "RerankerProfile",
+      "type": "object"
+    },
+    "Runtime": {
+      "additionalProperties": false,
+      "properties": {
+        "deadline_seconds": {
+          "default": 5.0,
+          "title": "Deadline Seconds",
+          "type": "number"
+        },
+        "queue_capacity": {
+          "default": 16,
+          "title": "Queue Capacity",
+          "type": "integer"
+        },
+        "stuck_worker_seconds": {
+          "default": 30.0,
+          "title": "Stuck Worker Seconds",
+          "type": "number"
+        },
+        "max_worker_restarts": {
+          "default": 3,
+          "title": "Max Worker Restarts",
+          "type": "integer"
+        }
+      },
+      "title": "Runtime",
+      "type": "object"
+    },
+    "SearchProfile": {
+      "additionalProperties": false,
+      "properties": {
+        "dense_k": {
+          "default": 30,
+          "minimum": 1,
+          "title": "Dense K",
+          "type": "integer"
+        },
+        "lexical_k": {
+          "default": 30,
+          "minimum": 1,
+          "title": "Lexical K",
+          "type": "integer"
+        },
+        "rrf_constant": {
+          "default": 60,
+          "minimum": 1,
+          "title": "Rrf Constant",
+          "type": "integer"
+        },
+        "rerank_k": {
+          "default": 30,
+          "minimum": 1,
+          "title": "Rerank K",
+          "type": "integer"
+        },
+        "max_passages": {
+          "default": 5,
+          "maximum": 5,
+          "minimum": 1,
+          "title": "Max Passages",
+          "type": "integer"
+        },
+        "overlap_limit": {
+          "default": 0.8,
+          "exclusiveMinimum": 0.0,
+          "maximum": 1.0,
+          "title": "Overlap Limit",
+          "type": "number"
+        }
+      },
+      "title": "SearchProfile",
+      "type": "object"
+    },
+    "ThresholdProfile": {
+      "additionalProperties": false,
+      "properties": {
+        "t_rerank": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "T Rerank"
+        },
+        "status": {
+          "default": "fixture",
+          "enum": [
+            "fixture",
+            "provisional",
+            "evaluated"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "evaluation_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evaluation Ref"
+        }
+      },
+      "title": "ThresholdProfile",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "retriever-profile-0.2",
+      "default": "retriever-profile-0.2",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "profile_version": {
+      "title": "Profile Version",
+      "type": "string"
+    },
+    "operating_mode": {
+      "default": "fixture",
+      "enum": [
+        "fixture",
+        "real_model_development",
+        "production"
+      ],
+      "title": "Operating Mode",
+      "type": "string"
+    },
+    "retrieval_policy_version": {
+      "default": "retrieval-policy-0.2",
+      "title": "Retrieval Policy Version",
+      "type": "string"
+    },
+    "query_builder_version": {
+      "default": "fts5-literal-or-0.2",
+      "title": "Query Builder Version",
+      "type": "string"
+    },
+    "chunking_version": {
+      "default": "chunk-sentence-0.2",
+      "title": "Chunking Version",
+      "type": "string"
+    },
+    "parser_normalization_version": {
+      "default": "nfc-ws-0.2",
+      "title": "Parser Normalization Version",
+      "type": "string"
+    },
+    "encoder": {
+      "$ref": "#/$defs/EncoderProfile"
+    },
+    "reranker": {
+      "$ref": "#/$defs/RerankerProfile"
+    },
+    "search": {
+      "$ref": "#/$defs/SearchProfile"
+    },
+    "threshold": {
+      "$ref": "#/$defs/ThresholdProfile"
+    },
+    "limits": {
+      "$ref": "#/$defs/Limits"
+    },
+    "runtime": {
+      "$ref": "#/$defs/Runtime"
+    },
+    "snapshots_root": {
+      "default": "artifacts/retriever/snapshots",
+      "title": "Snapshots Root",
+      "type": "string"
+    },
+    "revocations_path": {
+      "default": "artifacts/retriever/revocations.json",
+      "title": "Revocations Path",
+      "type": "string"
+    },
+    "import_root": {
+      "default": "artifacts/retriever/sources",
+      "title": "Import Root",
+      "type": "string"
+    },
+    "service_ids": {
+      "default": [
+        "orchestrator"
+      ],
+      "items": {
+        "type": "string"
+      },
+      "title": "Service Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "profile_version"
+  ],
+  "title": "RetrieverProfile",
+  "type": "object"
+}

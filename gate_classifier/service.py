@@ -327,8 +327,13 @@ class GateService:
                 self.alerts.dispatch(AlertEvent.new(request_id, self.session_ref(ctx), category))
             ref = None
             if vec is not None and canonical is not None and self.encoder is not None:
-                ref = EmbeddingRef(vec, self.encoder.preprocessing.fingerprint(),
-                                   hashlib.sha256((cfg.encoder.prefix + canonical).encode()).hexdigest())
+                pre = self.encoder.preprocessing
+                ref = EmbeddingRef(vector=np.asarray(vec, dtype=np.float32), encoder_id=pre.encoder_id,
+                                   encoder_revision=pre.revision, tokenizer_revision=pre.tokenizer_revision,
+                                   pooling=pre.pooling, dimension=pre.dimension, dtype="float32",
+                                   normalization=pre.normalization,
+                                   text_sha256=hashlib.sha256((cfg.encoder.prefix + canonical).encode()).hexdigest(),
+                                   preprocessing_fingerprint=pre.fingerprint())
             redacted_out = redacted if decision.route == Route.retrieve else None
             return GateResult(decision, redacted_out, ref, propose_session_update(decision, ctx), rules, categories)
 

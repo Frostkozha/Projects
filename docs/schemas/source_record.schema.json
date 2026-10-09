@@ -1,0 +1,340 @@
+{
+  "$defs": {
+    "ContentApproval": {
+      "additionalProperties": false,
+      "properties": {
+        "approver": {
+          "title": "Approver",
+          "type": "string"
+        },
+        "approved_at": {
+          "format": "date-time",
+          "title": "Approved At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "approver",
+        "approved_at"
+      ],
+      "title": "ContentApproval",
+      "type": "object"
+    },
+    "ParserRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "parser_id": {
+          "enum": [
+            "markdown",
+            "json",
+            "pdf_text"
+          ],
+          "title": "Parser Id",
+          "type": "string"
+        },
+        "parser_version": {
+          "title": "Parser Version",
+          "type": "string"
+        },
+        "normalization_version": {
+          "title": "Normalization Version",
+          "type": "string"
+        },
+        "parsed_output_approved": {
+          "title": "Parsed Output Approved",
+          "type": "boolean"
+        },
+        "verified_page_labels": {
+          "default": false,
+          "title": "Verified Page Labels",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "parser_id",
+        "parser_version",
+        "normalization_version",
+        "parsed_output_approved"
+      ],
+      "title": "ParserRecord",
+      "type": "object"
+    },
+    "RightsRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "rights_reference": {
+          "title": "Rights Reference",
+          "type": "string"
+        },
+        "allows_local_indexing": {
+          "title": "Allows Local Indexing",
+          "type": "boolean"
+        },
+        "allows_excerpt_display": {
+          "title": "Allows Excerpt Display",
+          "type": "boolean"
+        },
+        "allows_model_training": {
+          "default": false,
+          "title": "Allows Model Training",
+          "type": "boolean"
+        },
+        "constraints": {
+          "default": "",
+          "title": "Constraints",
+          "type": "string"
+        },
+        "reviewer": {
+          "title": "Reviewer",
+          "type": "string"
+        },
+        "reviewed_at": {
+          "format": "date-time",
+          "title": "Reviewed At",
+          "type": "string"
+        },
+        "supporting_document": {
+          "title": "Supporting Document",
+          "type": "string"
+        },
+        "expires_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expires At"
+        }
+      },
+      "required": [
+        "rights_reference",
+        "allows_local_indexing",
+        "allows_excerpt_display",
+        "reviewer",
+        "reviewed_at",
+        "supporting_document"
+      ],
+      "title": "RightsRecord",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "source_id": {
+      "title": "Source Id",
+      "type": "string"
+    },
+    "source_version": {
+      "title": "Source Version",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "owner": {
+      "title": "Owner",
+      "type": "string"
+    },
+    "edition": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Edition"
+    },
+    "publication_year": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Publication Year"
+    },
+    "source_tier": {
+      "title": "Source Tier",
+      "type": "integer"
+    },
+    "library_id": {
+      "enum": [
+        "lib1",
+        "lib2",
+        "lib3",
+        "lib4",
+        "lib5",
+        "lib6"
+      ],
+      "title": "Library Id",
+      "type": "string"
+    },
+    "course_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Course Ids",
+      "type": "array"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "topic_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Topic Ids",
+      "type": "array"
+    },
+    "language": {
+      "const": "en",
+      "default": "en",
+      "title": "Language",
+      "type": "string"
+    },
+    "file_ref": {
+      "title": "File Ref",
+      "type": "string"
+    },
+    "file_sha256": {
+      "title": "File Sha256",
+      "type": "string"
+    },
+    "format": {
+      "enum": [
+        "markdown",
+        "json",
+        "pdf"
+      ],
+      "title": "Format",
+      "type": "string"
+    },
+    "acquisition_record": {
+      "title": "Acquisition Record",
+      "type": "string"
+    },
+    "rights": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RightsRecord"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "content_approval": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ContentApproval"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "enum": [
+        "live",
+        "archived",
+        "blocked",
+        "pending_review",
+        "under_review"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "review_due_at": {
+      "format": "date-time",
+      "title": "Review Due At",
+      "type": "string"
+    },
+    "effective_from": {
+      "format": "date-time",
+      "title": "Effective From",
+      "type": "string"
+    },
+    "effective_to": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Effective To"
+    },
+    "superseded_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Superseded Version"
+    },
+    "parser": {
+      "$ref": "#/$defs/ParserRecord"
+    },
+    "default_section": {
+      "default": "Document",
+      "title": "Default Section",
+      "type": "string"
+    },
+    "extraction_checks": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Extraction Checks",
+      "type": "array"
+    },
+    "synthetic_fixture": {
+      "default": false,
+      "title": "Synthetic Fixture",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "source_id",
+    "source_version",
+    "title",
+    "owner",
+    "source_tier",
+    "library_id",
+    "course_ids",
+    "tenant_id",
+    "topic_ids",
+    "file_ref",
+    "file_sha256",
+    "format",
+    "acquisition_record",
+    "rights",
+    "content_approval",
+    "status",
+    "review_due_at",
+    "effective_from",
+    "parser"
+  ],
+  "title": "SourceRecord",
+  "type": "object"
+}

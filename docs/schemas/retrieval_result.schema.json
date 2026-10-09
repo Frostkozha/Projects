@@ -1,0 +1,407 @@
+{
+  "$defs": {
+    "ConflictOut": {
+      "additionalProperties": false,
+      "properties": {
+        "conflict_id": {
+          "title": "Conflict Id",
+          "type": "string"
+        },
+        "topic_id": {
+          "title": "Topic Id",
+          "type": "string"
+        },
+        "passage_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Passage Ids",
+          "type": "array"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "policy_reference": {
+          "title": "Policy Reference",
+          "type": "string"
+        }
+      },
+      "required": [
+        "conflict_id",
+        "topic_id",
+        "passage_ids",
+        "description",
+        "policy_reference"
+      ],
+      "title": "ConflictOut",
+      "type": "object"
+    },
+    "ErrorCode": {
+      "enum": [
+        "INVALID_REQUEST",
+        "UNAUTHORIZED",
+        "INPUT_TOO_LONG",
+        "INVALID_SCOPE",
+        "SCOPE_MISMATCH",
+        "FORBIDDEN",
+        "VERSION_MISMATCH",
+        "SOURCE_STATE_CHANGED",
+        "INVALID_EMBEDDING_REF",
+        "INDEX_UNAVAILABLE",
+        "MODEL_UNAVAILABLE",
+        "SEARCH_FAILED",
+        "RERANK_FAILED",
+        "DEADLINE_EXCEEDED",
+        "CAPACITY_EXCEEDED",
+        "ITEM_EVIDENCE_UNAVAILABLE",
+        "CONFLICT_EVIDENCE_INCOMPLETE",
+        "AUDIT_UNAVAILABLE"
+      ],
+      "title": "ErrorCode",
+      "type": "string"
+    },
+    "EvidencePassage": {
+      "additionalProperties": false,
+      "properties": {
+        "passage_id": {
+          "title": "Passage Id",
+          "type": "string"
+        },
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_version": {
+          "title": "Source Version",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "library_id": {
+          "enum": [
+            "lib1",
+            "lib2",
+            "lib3",
+            "lib4",
+            "lib5",
+            "lib6"
+          ],
+          "title": "Library Id",
+          "type": "string"
+        },
+        "locator": {
+          "$ref": "#/$defs/Locator"
+        },
+        "section_path": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Section Path",
+          "type": "array"
+        },
+        "edition": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Edition"
+        },
+        "publication_year": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Publication Year"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "text_sha256": {
+          "title": "Text Sha256",
+          "type": "string"
+        },
+        "review_status": {
+          "enum": [
+            "live",
+            "archived",
+            "blocked",
+            "pending_review",
+            "under_review"
+          ],
+          "title": "Review Status",
+          "type": "string"
+        },
+        "rights_reference": {
+          "title": "Rights Reference",
+          "type": "string"
+        },
+        "relevance_score": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Relevance Score"
+        },
+        "score_type": {
+          "anyOf": [
+            {
+              "const": "cross_encoder_logit",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Score Type"
+        },
+        "evidence_uri": {
+          "title": "Evidence Uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "passage_id",
+        "source_id",
+        "source_version",
+        "title",
+        "library_id",
+        "locator",
+        "section_path",
+        "edition",
+        "publication_year",
+        "text",
+        "text_sha256",
+        "review_status",
+        "rights_reference",
+        "relevance_score",
+        "score_type",
+        "evidence_uri"
+      ],
+      "title": "EvidencePassage",
+      "type": "object"
+    },
+    "Locator": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "pdf_page",
+            "slide",
+            "section",
+            "caption",
+            "table"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "start": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Start"
+        },
+        "end": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "End"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "anchor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Anchor"
+        }
+      },
+      "required": [
+        "kind",
+        "start",
+        "end",
+        "label",
+        "anchor"
+      ],
+      "title": "Locator",
+      "type": "object"
+    },
+    "Reason": {
+      "enum": [
+        "QUALIFYING_PASSAGES",
+        "BELOW_THRESHOLD",
+        "NO_MATCHES",
+        "NO_ELIGIBLE_PASSAGES",
+        "APPROVED_ITEM_EVIDENCE",
+        "FAILURE"
+      ],
+      "title": "Reason",
+      "type": "string"
+    },
+    "Status": {
+      "enum": [
+        "ok",
+        "no_evidence",
+        "error"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "retrieval-result-0.2",
+      "default": "retrieval-result-0.2",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/Status"
+    },
+    "reason": {
+      "$ref": "#/$defs/Reason"
+    },
+    "error_code": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ErrorCode"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "passages": {
+      "items": {
+        "$ref": "#/$defs/EvidencePassage"
+      },
+      "title": "Passages",
+      "type": "array"
+    },
+    "coverage": {
+      "enum": [
+        "full",
+        "partial",
+        "unknown"
+      ],
+      "title": "Coverage",
+      "type": "string"
+    },
+    "conflicts": {
+      "items": {
+        "$ref": "#/$defs/ConflictOut"
+      },
+      "title": "Conflicts",
+      "type": "array"
+    },
+    "libraries_searched": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Libraries Searched",
+      "type": "array"
+    },
+    "kb_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Kb Version"
+    },
+    "retrieval_policy_version": {
+      "default": "retrieval-policy-0.2",
+      "title": "Retrieval Policy Version",
+      "type": "string"
+    },
+    "index_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Index Version"
+    },
+    "profile_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Profile Version"
+    },
+    "revocation_epoch": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Revocation Epoch"
+    }
+  },
+  "required": [
+    "request_id",
+    "status",
+    "reason",
+    "error_code",
+    "passages",
+    "coverage",
+    "conflicts",
+    "libraries_searched",
+    "kb_version",
+    "index_version",
+    "profile_version",
+    "revocation_epoch"
+  ],
+  "title": "RetrievalResult",
+  "type": "object"
+}

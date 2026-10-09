@@ -1,0 +1,12 @@
+{
+  "_comment": "Orchestrator mapping from retrieval outcomes to the gate's fixed reply keys (config/development.yaml). Retrieval never produces answer text.",
+  "retrieval_status": {
+    "ok": null,
+    "no_evidence": "no_source",
+    "error": "service_unavailable"
+  },
+  "final_response_code": {
+    "no_evidence": "A5",
+    "error": null
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "$defs": {
+    "ConflictSide": {
+      "additionalProperties": false,
+      "properties": {
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_version": {
+          "title": "Source Version",
+          "type": "string"
+        },
+        "passage_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Passage Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "source_id",
+        "source_version",
+        "passage_ids"
+      ],
+      "title": "ConflictSide",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Faculty-registered conflict between approved sources. Never inferred from score differences.",
+  "properties": {
+    "conflict_id": {
+      "title": "Conflict Id",
+      "type": "string"
+    },
+    "topic_id": {
+      "title": "Topic Id",
+      "type": "string"
+    },
+    "sides": {
+      "items": {
+        "$ref": "#/$defs/ConflictSide"
+      },
+      "title": "Sides",
+      "type": "array"
+    },
+    "faculty_review_status": {
+      "title": "Faculty Review Status",
+      "type": "string"
+    },
+    "description": {
+      "title": "Description",
+      "type": "string"
+    },
+    "description_approved": {
+      "title": "Description Approved",
+      "type": "boolean"
+    },
+    "policy_reference": {
+      "title": "Policy Reference",
+      "type": "string"
+    }
+  },
+  "required": [
+    "conflict_id",
+    "topic_id",
+    "sides",
+    "faculty_review_status",
+    "description",
+    "description_approved",
+    "policy_reference"
+  ],
+  "title": "ConflictRecord",
+  "type": "object"
+}

@@ -14,6 +14,7 @@ dependencies = [
   "PyYAML",
   "fastapi",
   "uvicorn",
+  "pypdf",
 ]
 
 [project.optional-dependencies]
@@ -21,7 +22,7 @@ model = ["torch", "transformers", "spacy"]
 dev = ["pytest", "httpx"]
 
 [tool.setuptools.packages.find]
-include = ["gate_classifier*", "training*"]
+include = ["gate_classifier*", "training*", "retriever*", "tools*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -12,6 +12,10 @@ import threading
 from dataclasses import dataclass, field
 from typing import Callable, Optional
 
+from retriever.schema import ErrorCode as RErrorCode
+from retriever.schema import Reason as RReason
+from retriever.schema import Status as RStatus
+
 from .adapters import (
     MODE_INSTRUCTIONS,
     SYSTEM_INSTRUCTION_VERSION,
@@ -19,12 +23,16 @@ from .adapters import (
     Brain,
     BrainRequest,
     DraftAnswer,
+    EvidenceBundle,
+    ItemFetchRequest,
     Passage,
+    RetrievalContext,
     RetrievalRequest,
     RetrievalResult,
     Retriever,
     VerificationResult,
     Verifier,
+    build_prompt,
     check_citations,
     validate_retrieval,
 )
@@ -113,8 +121,9 @@ class Orchestrator:
     def __init__(self, gate: GateService, sessions: InMemorySessionStore, retriever: Retriever, brain: Brain,
                  verifier: Optional[Verifier], *, kb_version: str, topic_registry_version: str = "topics-dev-0.1",
                  deployment: Optional[DeploymentControl] = None, text_store: Optional[RestrictedTextStore] = None,
-                 adapter_timeout_seconds: float = 10.0):
+                 adapter_timeout_seconds: float = 10.0, service_id: str = "orchestrator"):
         self.gate = gate
+        self.service_id = service_id
         self.config = gate.config
         self.registry: LibraryRegistry = gate.registry
         self.sessions = sessions
@@ -222,39 +231,87 @@ class Orchestrator:
                                session_id)
         return self._generate(request_id, request, ctx, result)
 
+    def _retrieval_context(self, ctx: GateContext, plan, embedding_ref) -> RetrievalContext:
+        return RetrievalContext(
+            service_id=self.service_id, tenant_id=ctx.tenant_id, course_id=ctx.course_id,
+            authorized_libraries=frozenset(plan.allowed_libraries) if plan else frozenset(ctx.authorized_active_libraries),
+            registry_version=self.registry.registry_version, gate_permitted=True, embedding_ref=embedding_ref,
+            session_ref=self.gate.session_ref(ctx))
+
+    def _fit_context(self, request_text, mode, evidence_passages, session_context, item_context, removable: bool):
+        """Whole-passage removal (lowest-ranked first) until the full prompt fits the Brain budget."""
+        brain = self.brain
+        try:
+            limit = int(brain.context_limit) - int(brain.reserved_output_tokens)
+            count = brain.count_tokens
+        except Exception:
+            raise AdapterError("brain_budget_unavailable") from None
+        passages = list(evidence_passages)
+        while passages:
+            bundle = EvidenceBundle.build(passages)
+            prompt = build_prompt(request_text, mode, bundle, session_context, item_context)
+            if count(prompt) <= limit:
+                return bundle, prompt
+            if not removable:
+                raise AdapterError("context_budget_breaks_required_evidence")
+            passages.pop()
+        raise AdapterError("context_budget_removed_all_evidence")
+
     def _generate(self, request_id, request, ctx: GateContext, result) -> FinalResponse:
         decision = result.decision
         plan = decision.retrieval_plan
         mode = decision.effective_mode
         session = ctx.session
         session_id = session.session_id if session else None
-        pending_reply = bool(decision.flags.context_used and session is not None and session.pending_item_id)
+        pending_item = bool(decision.flags.context_used and session is not None and session.pending_item_id
+                            and session.item_version)
+        rctx = self._retrieval_context(ctx, plan, result.embedding_ref)
         try:
-            rreq = RetrievalRequest(
-                query_text=result.redacted_text, allowed_libraries=plan.allowed_libraries,
-                preferred_libraries=plan.preferred_libraries, course_id=ctx.course_id, kb_version=ctx.kb_version,
-                embedding_ref=result.embedding_ref,
-                pending_item_id=session.pending_item_id if pending_reply else None,
-                item_version=session.item_version if pending_reply else None,
-            )
+            if pending_item:
+                # a bare reply to an approved item fetches its approved evidence; never a search for "B"
+                rreq = ItemFetchRequest(request_id=request_id, item_id=session.pending_item_id,
+                                        item_version=session.item_version, course_id=ctx.course_id,
+                                        kb_version=ctx.kb_version)
+                fetch = self.retriever.fetch_item_evidence
+            else:
+                rreq = RetrievalRequest(request_id=request_id, query_text=result.redacted_text,
+                                        allowed_libraries=plan.allowed_libraries,
+                                        preferred_libraries=plan.preferred_libraries, course_id=ctx.course_id,
+                                        kb_version=ctx.kb_version, strategy="all_active")
+                fetch = self.retriever.retrieve
         except Exception:
             return self._unavailable(request_id, "retrieval_request_invalid")
         try:
-            retrieval: RetrievalResult = self._call(self.retriever.retrieve, rreq)
-            validate_retrieval(retrieval, rreq)
+            retrieval: RetrievalResult = self._call(fetch, rreq, rctx)
+            if not isinstance(retrieval, RetrievalResult) or retrieval.request_id != request_id:
+                raise AdapterError("retrieval_result_invalid")
+            validate_retrieval(retrieval, plan.allowed_libraries, ctx.kb_version)
         except AdapterError as exc:
             return self._unavailable(request_id, str(exc))
-        if retrieval.status == "no_evidence":
+        if retrieval.status == RStatus.no_evidence:
             return self._fixed(request_id, ResponseCode.A5, "no_source", "NO_EVIDENCE", session_id)
 
         item_context = None
-        if pending_reply:
+        if pending_item:
             item_context = f"Pending item {session.pending_item_id} version {session.item_version}"
-        brain_req = BrainRequest(
-            question_text=result.redacted_text, mode=mode,
-            session_context=(session.topic_text if pending_reply else None), passages=retrieval.passages,
-            item_context=item_context, system_instruction_version=SYSTEM_INSTRUCTION_VERSION,
-        )
+        session_context = session.topic_text if decision.flags.context_used and session else None
+        # required evidence sets and conflict pairs may not be thinned to fit the prompt
+        removable = retrieval.coverage == "unknown" and not retrieval.conflicts
+        try:
+            bundle, prompt = self._fit_context(result.redacted_text, mode, retrieval.passages, session_context,
+                                               item_context, removable)
+        except AdapterError as exc:
+            return self._unavailable(request_id, str(exc))
+        # revocation / eligibility re-check immediately before Brain invocation
+        try:
+            problem = self._call(self.retriever.revalidate, retrieval, rctx)
+        except AdapterError as exc:
+            return self._unavailable(request_id, str(exc))
+        if problem is not None:
+            return self._unavailable(request_id, "source_state_changed")
+        brain_req = BrainRequest(question_text=result.redacted_text, mode=mode, session_context=session_context,
+                                 evidence=bundle, item_context=item_context,
+                                 system_instruction_version=SYSTEM_INSTRUCTION_VERSION, prompt=prompt)
         try:
             draft: DraftAnswer = self._call(self.brain.draft, brain_req)
         except AdapterError as exc:
@@ -263,12 +320,14 @@ class Orchestrator:
             return self._fixed(request_id, ResponseCode.A5, "no_source", "NO_EVIDENCE", session_id)
         if self.verifier is None:
             return self._unavailable(request_id, "verifier_missing")
-        invalid = check_citations(draft, retrieval.passages)
+        invalid = check_citations(draft, bundle.passages)
         try:
-            verification: VerificationResult = self._call(self.verifier.verify, draft, retrieval.passages,
+            verification: VerificationResult = self._call(self.verifier.verify, draft, bundle,
                                                           result.redacted_text, mode, item_context)
         except AdapterError as exc:
             return self._unavailable(request_id, str(exc))
+        if verification.evidence_digest != bundle.digest:
+            return self._unavailable(request_id, "evidence_map_mismatch")  # draft never delivered
         outcome = final_code_from_verification(verification, invalid)
         if outcome == "unavailable":
             return self._unavailable(request_id, "verifier_error")
@@ -283,15 +342,17 @@ class Orchestrator:
             return self._fixed(request_id, ResponseCode.A5, "no_source", "VERIFICATION_REJECTED", session_id)
 
         code = ResponseCode.A1 if outcome == "A1" else ResponseCode.A2
-        by_id = {p.passage_id: p for p in retrieval.passages}
+        numbers = {pid: n for n, pid in bundle.citation_map}
+        by_id = {p.passage_id: p for p in bundle.passages}
         cited = [by_id[pid] for pid in draft.used_passage_ids if pid in by_id]
-        citations = tuple({"passage_id": p.passage_id, "source_id": p.source_id, "source_version": p.source_version,
-                           "title": p.title, "locator": p.locator} for p in cited)
+        citations = tuple({"number": numbers[p.passage_id], "passage_id": p.passage_id, "source_id": p.source_id,
+                           "source_version": p.source_version, "title": p.title, "locator": p.locator.label,
+                           "evidence_uri": p.evidence_uri} for p in cited)
         text = f"{verification.verified_text.strip()}\n\n{AI_NOTICE}"
 
         # commit the session atomically after an accepted final response
         try:
-            session_id = self._commit_session(ctx, mode, pending_reply, retrieval, draft)
+            session_id = self._commit_session(ctx, mode, pending_item, bundle, draft, rctx)
         except GateError as exc:
             return self._error(request_id, exc.code)
         if not self._audit_final(request_id, code.value, "ok"):
@@ -304,15 +365,22 @@ class Orchestrator:
             self._audit_final(request_id, None, "unavailable", detail)
         return self._error(request_id, ErrorCode.SERVICE_UNAVAILABLE)
 
-    def _commit_session(self, ctx: GateContext, mode: Mode, pending_reply: bool, retrieval: RetrievalResult,
-                        draft: DraftAnswer) -> Optional[str]:
+    def _commit_session(self, ctx: GateContext, mode: Mode, pending_item: bool, bundle: EvidenceBundle,
+                        draft: DraftAnswer, rctx: RetrievalContext) -> Optional[str]:
         s = ctx.session
-        quiz_item = next((p for p in retrieval.passages if p.library_id == "lib5"), None)
         new_pending: dict = {"pending_question": None, "pending_item_id": None, "item_version": None, "state": "idle"}
-        if mode == Mode.quiz and quiz_item is not None and not pending_reply:
-            new_pending = {"pending_question": draft.draft_text[:MAX_PENDING_CHARS], "pending_item_id": quiz_item.passage_id,
-                           "item_version": quiz_item.source_version, "state": "awaiting_response"}
-        elif mode == Mode.tutor and not pending_reply:
+        item = None
+        if mode == Mode.quiz and not pending_item:
+            lookup = getattr(self.retriever, "approved_item_for", None)
+            for p in bundle.passages:
+                if p.library_id == "lib5" and lookup is not None:
+                    item = lookup(rctx, ctx.kb_version, p.passage_id)
+                    if item:
+                        break
+        if item:
+            new_pending = {"pending_question": draft.draft_text[:MAX_PENDING_CHARS], "pending_item_id": item[0],
+                           "item_version": item[1], "state": "awaiting_response"}
+        elif mode == Mode.tutor and not pending_item:
             new_pending = {"pending_question": draft.draft_text[:MAX_PENDING_CHARS], "pending_item_id": None,
                            "item_version": None, "state": "awaiting_response"}
         if s is None:
@@ -323,7 +391,7 @@ class Orchestrator:
                                            **new_pending)
             return created.session_id
         changes = {"mode": mode, **new_pending}
-        if pending_reply:
+        if pending_item:
             changes["answered_items"] = s.answered_items + (s.pending_item_id,)
         self.sessions.compare_and_swap(s.session_id, s.revision, **changes)
         return s.session_id
@@ -333,46 +401,87 @@ class Orchestrator:
 
 
 class FixtureRetriever:
-    """Development stub: returns configured passages filtered by the request's allowed libraries."""
+    """Development stub returning canonical RetrievalResult objects for configured passages.
+
+    ``items`` maps item_id -> (item_version, passage_ids). Not the real retriever (see ``retriever``).
+    """
 
     def __init__(self, passages: list[Passage], kb_version: str, status: str = "ok", raise_error: bool = False,
-                 ignore_filter: bool = False):
+                 ignore_filter: bool = False, items: Optional[dict] = None, revalidate_result=None):
         self.passages = passages
         self.kb_version = kb_version
         self.status = status
         self.raise_error = raise_error
         self.ignore_filter = ignore_filter
-        self.calls: list[RetrievalRequest] = []
+        self.items = items or {}
+        self.revalidate_result = revalidate_result
+        self.calls: list = []
+        self.item_calls: list = []
 
-    def retrieve(self, request: RetrievalRequest) -> RetrievalResult:
+    def _base(self, request_id, **kw):
+        return dict(request_id=request_id, kb_version=self.kb_version, index_version="fixture-index",
+                    profile_version="fixture-profile", revocation_epoch=0, **kw)
+
+    def retrieve(self, request: RetrievalRequest, context: RetrievalContext) -> RetrievalResult:
         self.calls.append(request)
         if self.raise_error:
             raise RuntimeError(f"backend failure for {request.query_text}")  # suppressed by the harness
-        if self.status != "ok":
-            return RetrievalResult(status=self.status, kb_version=self.kb_version, retrieval_policy_version="fixture")
-        pool = self.passages if self.ignore_filter else [p for p in self.passages if p.library_id in request.allowed_libraries]
-        if request.pending_item_id:
-            pool = [p for p in pool if p.passage_id == request.pending_item_id] or pool
-        if not pool:
-            return RetrievalResult(status="no_evidence", kb_version=self.kb_version, retrieval_policy_version="fixture")
-        return RetrievalResult(status="ok", passages=tuple(pool[:5]), coverage="full", kb_version=self.kb_version,
-                               retrieval_policy_version="fixture")
+        if self.status == "error":
+            return RetrievalResult.error(request.request_id, RErrorCode.SEARCH_FAILED, kb_version=self.kb_version)
+        pool = self.passages if self.ignore_filter else [p for p in self.passages
+                                                         if p.library_id in request.allowed_libraries]
+        if self.status == "no_evidence" or not pool:
+            return RetrievalResult.no_evidence(request.request_id, RReason.BELOW_THRESHOLD,
+                                               request.allowed_libraries, kb_version=self.kb_version)
+        return RetrievalResult(**self._base(request.request_id), status=RStatus.ok, reason=RReason.QUALIFYING_PASSAGES,
+                               error_code=None, passages=tuple(pool[:5]), coverage="unknown", conflicts=(),
+                               libraries_searched=tuple(sorted(request.allowed_libraries)))
+
+    def fetch_item_evidence(self, request: ItemFetchRequest, context: RetrievalContext) -> RetrievalResult:
+        self.item_calls.append(request)
+        entry = self.items.get(request.item_id)
+        if entry is None or entry[0] != request.item_version:
+            return RetrievalResult.error(request.request_id, RErrorCode.ITEM_EVIDENCE_UNAVAILABLE,
+                                         kb_version=self.kb_version)
+        by_id = {p.passage_id: p for p in self.passages}
+        chosen = tuple(by_id[pid].model_copy(update={"relevance_score": None, "score_type": None}) for pid in entry[1])
+        return RetrievalResult(**self._base(request.request_id), status=RStatus.ok,
+                               reason=RReason.APPROVED_ITEM_EVIDENCE, error_code=None, passages=chosen,
+                               coverage="full", conflicts=(), libraries_searched=())
+
+    def revalidate(self, result, context):
+        return self.revalidate_result
+
+    def approved_item_for(self, context, kb_version, passage_id):
+        for item_id, (version, pids) in sorted(self.items.items()):
+            if passage_id in pids:
+                return (item_id, version)
+        return None
 
 
 class FixtureBrain:
     """Development stub: deterministic draft builder; ``script`` may override the draft."""
 
-    def __init__(self, script: Optional[Callable[[BrainRequest], DraftAnswer]] = None):
+    def __init__(self, script: Optional[Callable[[BrainRequest], DraftAnswer]] = None, context_limit: int = 4096,
+                 reserved_output_tokens: int = 256):
+        from .encoder import FixtureTokenizer  # noqa: PLC0415
+
         self.script = script
+        self.context_limit = context_limit
+        self.reserved_output_tokens = reserved_output_tokens
+        self._tok = FixtureTokenizer()
         self.calls: list[BrainRequest] = []
+
+    def count_tokens(self, text: str) -> int:
+        return self._tok.count(text, True)
 
     def draft(self, request: BrainRequest) -> DraftAnswer:
         self.calls.append(request)
         if self.script is not None:
             return self.script(request)
-        if not request.passages:
+        if not request.evidence.passages:
             return DraftAnswer(draft_text="", used_passage_ids=(), status="no_evidence")
-        p = request.passages[0]
+        p = request.evidence.passages[0]
         lead = MODE_INSTRUCTIONS[request.mode].split(".")[0]
         return DraftAnswer(draft_text=f"{p.text} [{p.passage_id}] ({lead}.)", used_passage_ids=(p.passage_id,),
                            status="draft")
@@ -381,16 +490,20 @@ class FixtureBrain:
 class FixtureVerifier:
     """Development stub: approves drafts whose citations are valid unless ``script`` says otherwise.
 
-    It does NOT check medical claims against evidence; a real verifier must.
+    It does NOT check medical claims against evidence; a real verifier must. It echoes the evidence
+    digest it received so the orchestrator can prove Brain and verifier saw the same evidence map.
     """
 
     def __init__(self, script: Optional[Callable[..., VerificationResult]] = None):
         self.script = script
         self.calls = 0
+        self.seen: list[EvidenceBundle] = []
 
-    def verify(self, draft, passages, request_text, mode, item_context) -> VerificationResult:
+    def verify(self, draft, evidence, request_text, mode, item_context) -> VerificationResult:
         self.calls += 1
+        self.seen.append(evidence)
         if self.script is not None:
-            return self.script(draft, passages)
-        return VerificationResult(status="approved", verified_text=draft.draft_text,
+            v = self.script(draft, evidence.passages)
+            return v if v.evidence_digest else v.model_copy(update={"evidence_digest": evidence.digest})
+        return VerificationResult(status="approved", evidence_digest=evidence.digest, verified_text=draft.draft_text,
                                   supported_claims=draft.used_passage_ids, verifier_version="fixture-verifier")

@@ -28,7 +28,7 @@ COURSE_Q = "Explain the structure of simple squamous epithelium."
 
 
 def no_downstream(h: Harness):
-    assert h.retriever.calls == []
+    assert h.retriever.calls == [] and h.retriever.item_calls == []
     assert h.brain.calls == []
     assert h.verifier.calls == 0
 
@@ -308,7 +308,7 @@ def test_T24_disabled_libraries_stay_excluded(make_harness):
     assert "lib3" not in d.retrieval_plan.allowed_libraries and "lib4" not in d.retrieval_plan.allowed_libraries
     r = h.ask(COURSE_Q)
     assert r.response_code == ResponseCode.A1
-    assert all(p.library_id not in ("lib3", "lib4") for p in h.brain.calls[0].passages)
+    assert all(p.library_id not in ("lib3", "lib4") for p in h.brain.calls[0].evidence.passages)
 
 
 def test_T25_confident_wrong_library_still_searches_all(make_harness):
@@ -326,7 +326,7 @@ def quiz_session(h: Harness, **kw):
                   policy_version=h.config.policy_version, kb_version="fixture-kb-001", topic_id="epi",
                   topic_text="simple squamous epithelium", state="awaiting_response",
                   pending_question="Which epithelium lines alveoli? A) stratified B) simple squamous",
-                  pending_item_id="fixture-q1", item_version="v1")
+                  pending_item_id="item-e1", item_version="v1")
     fields.update(kw)
     return h.sessions.create(**fields)
 
@@ -336,9 +336,10 @@ def test_T26_quiz_reply_gated_with_context_and_item_evidence(harness):
     r = harness.ask("B", session_id=s.session_id)
     assert r.response_code == ResponseCode.A1
     assert "Pending question:" in harness.scorer.seen[0] and "Current request: B" in harness.scorer.seen[0]
-    call = harness.retriever.calls[0]
-    assert call.pending_item_id == "fixture-q1" and call.item_version == "v1"
-    assert harness.sessions.get(s.session_id).answered_items == ("fixture-q1",)
+    assert harness.retriever.calls == []  # no semantic search for "B"
+    call = harness.retriever.item_calls[0]
+    assert call.item_id == "item-e1" and call.item_version == "v1"
+    assert harness.sessions.get(s.session_id).answered_items == ("item-e1",)
 
 
 def test_T27_bare_reply_without_pending_state_clarifies(harness):
@@ -352,7 +353,7 @@ def test_T28_real_person_request_during_quiz_pauses_without_advancing(harness):
     r = harness.ask("My mother has a lump in her breast, what should she take?", session_id=s.session_id)
     assert r.response_code == ResponseCode.A6
     after = harness.sessions.get(s.session_id)
-    assert after.state == "paused" and after.answered_items == () and after.pending_item_id == "fixture-q1"
+    assert after.state == "paused" and after.answered_items == () and after.pending_item_id == "item-e1"
     no_downstream(harness)
 
 

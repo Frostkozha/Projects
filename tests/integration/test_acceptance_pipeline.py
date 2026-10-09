@@ -31,7 +31,7 @@ def test_T33_concurrent_replies_advance_once(make_harness):
 
     def brain_script(req):
         barrier.wait()  # both requests have read the same session revision
-        p = req.passages[0]
+        p = req.evidence.passages[0]
         return DraftAnswer(draft_text=f"Correct: {p.text} [{p.passage_id}]", used_passage_ids=(p.passage_id,),
                            status="draft")
 
@@ -44,7 +44,7 @@ def test_T33_concurrent_replies_advance_once(make_harness):
     codes = sorted((r.http_status, r.error_code.value if r.error_code else None) for r in results)
     assert codes == [(200, None), (409, "SESSION_CONFLICT")]
     final = h.sessions.get(s.session_id)
-    assert final.answered_items == ("fixture-q1",) and final.revision == s.revision + 1
+    assert final.answered_items == ("item-e1",) and final.revision == s.revision + 1
 
 
 def test_T34_no_evidence_is_A5_without_brain(make_harness):
@@ -55,7 +55,7 @@ def test_T34_no_evidence_is_A5_without_brain(make_harness):
 
 
 def test_T35_retrieval_error_is_unavailable(make_harness):
-    for retriever in (FixtureRetriever(passages(), KB, status="error"), FixtureRetriever(passages(), KB, raise_error=True)):
+    for retriever in (FixtureRetriever(passages(), KB, status="error"), FixtureRetriever(passages(), KB, raise_error=True)):  # noqa: E501
         h = make_harness(retriever=retriever)
         r = h.ask(COURSE_Q)
         assert (r.http_status, r.error_code) == UNAVAILABLE
@@ -68,7 +68,7 @@ def test_T36_unauthorized_or_stale_evidence_is_unavailable(make_harness):
     assert (h.ask(COURSE_Q).http_status, h.brain.calls) == (503, [])
     h2 = make_harness(retriever=FixtureRetriever(passages(), "old-kb"))
     assert (h2.ask(COURSE_Q).http_status, h2.brain.calls) == (503, [])
-    bad = passages()[0].model_copy(update={"review_status": "under_review"})
+    bad = passages()[0].model_copy(update={"review_status": "under_review"})  # only live evidence is allowed
     h3 = make_harness(retriever=FixtureRetriever([bad], KB))
     assert (h3.ask(COURSE_Q).http_status, h3.brain.calls) == (503, [])
 
@@ -135,7 +135,7 @@ def test_T42_complete_supported_answer_is_A1_with_citations_and_notice(harness):
     r = harness.ask(COURSE_Q)
     assert r.response_code == ResponseCode.A1
     assert r.text.endswith(AI_NOTICE)
-    assert r.citations and r.citations[0]["passage_id"] == "fixture-p1"
+    assert r.citations and r.citations[0]["passage_id"] == "fixture-p1" and r.citations[0]["number"] == 1
     view = r.student_view()
     assert set(view) == {"request_id", "response_code", "text", "citations", "session_id"}
     assert "prediction" not in str(view) and "config_sha256" not in str(view)
@@ -245,7 +245,7 @@ def test_T59_commit_conflict_returns_409_without_duplicate_progress(make_harness
     def brain_script(req):
         s = holder["h"].sessions.get(holder["sid"])
         holder["h"].sessions.compare_and_swap(s.session_id, s.revision, state="awaiting_response")  # concurrent writer
-        p = req.passages[0]
+        p = req.evidence.passages[0]
         return DraftAnswer(draft_text=f"{p.text} [{p.passage_id}]", used_passage_ids=(p.passage_id,), status="draft")
 
     h = make_harness(brain=FixtureBrain(brain_script))
@@ -254,19 +254,19 @@ def test_T59_commit_conflict_returns_409_without_duplicate_progress(make_harness
     r = h.ask("B", session_id=s.session_id)
     assert (r.http_status, r.error_code) == (409, ErrorCode.SESSION_CONFLICT)
     current = h.sessions.get(s.session_id)
-    assert current.answered_items == () and current.pending_item_id == "fixture-q1"
+    assert current.answered_items == () and current.pending_item_id == "item-e1"
 
 
 def test_fixture_retriever_never_returns_disabled_library(harness):
     harness.ask(COURSE_Q)
-    assert all(isinstance(p, Passage) and p.library_id != "lib3" for p in harness.brain.calls[0].passages)
+    assert all(isinstance(p, Passage) and p.library_id != "lib3" for p in harness.brain.calls[0].evidence.passages)
 
 
 def test_quiz_session_created_and_advanced_end_to_end(harness: Harness):
     r = harness.ask("Quiz me on simple squamous epithelium.")
     assert r.response_code == ResponseCode.A1 and r.session_id
     s = harness.sessions.get(r.session_id)
-    assert s.mode.value == "quiz" and s.state == "awaiting_response" and s.pending_item_id == "fixture-q1"
+    assert s.mode.value == "quiz" and s.state == "awaiting_response" and s.pending_item_id == "item-e1"
     r2 = harness.ask("B", session_id=r.session_id)
     assert r2.response_code == ResponseCode.A1
-    assert harness.sessions.get(r.session_id).answered_items == ("fixture-q1",)
+    assert harness.sessions.get(r.session_id).answered_items == ("item-e1",)
