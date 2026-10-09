@@ -33,7 +33,7 @@ request returns `SERVICE_UNAVAILABLE`. There is no random-score or "search every
 - `training/` – validate_dataset, split_dataset, train, calibrate, tune_thresholds, evaluate,
   make_synthetic_fixture (smoke tests only)
 - `config/` – development config and histology library registry (lib3/lib4 disabled)
-- `tests/` – contract/integration acceptance tests T01–T60 subset with spy adapters
+- `tests/` – contract/integration acceptance tests T01–T60, API contract and training tests (fixture mode)
 
 ## Bootstrap (offline runtime)
 
@@ -56,5 +56,4 @@ python -m training.evaluate ... --partition holdout --confirm-frozen
 
 - Real E5 / spaCy paths are untested here (Hugging Face and GitHub were unreachable from the build container).
 - Inference runs in a thread worker; production should use a killable process.
-- Not yet written: readiness/bundle tests (T22, T50, T55, T60), training tests (T52–T54), API tests.
 - Institutional items: contacts, welfare procedure, retention, SSO, approved source registry, reviewed dataset.
