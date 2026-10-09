@@ -1,0 +1,32 @@
+# Verifier development profile (Verifier spec v0.2). fixture mode = injected NLI scores in unit tests only.
+# real_model_development requires the pinned local cross-encoder/nli-deberta-v3-xsmall (revision + weight hash).
+schema_version: verifier-profile-0.2
+profile_version: verifier-dev-0.2
+operating_mode: fixture        # fixture | real_model_development | production
+git_commit: null
+nli:
+  model_id: cross-encoder/nli-deberta-v3-xsmall
+  revision: null               # pin the exact 40-character commit you provision; never invent it
+  local_path: artifacts/verifier/nli-deberta-v3-xsmall
+  expected_labels: {"0": contradiction, "1": entailment, "2": neutral}
+  weights_sha256: null
+  max_premise_tokens: 384
+  max_hypothesis_tokens: 96
+  max_pair_tokens: 512
+  reserve_tokens: 32
+  batch_size: 8
+  torch_threads: 4
+segmenter:
+  kind: spacy_sentencizer      # production: spacy_model with a pinned en_core_web_sm path and version
+  model_path: null
+  model_version: null
+runtime:
+  deadline_seconds: 5.0
+  queue_capacity: 16
+  max_pairs: 80
+  worker: in_process           # subprocess: supervised spawn worker (required outside fixture mode)
+  hard_recovery_seconds: 20.0
+  max_body_bytes: 262144
+thresholds_path: config/verifier/thresholds_test.yaml
+rules_dir: config/verifier
+features: {a4_educational: false, virtual_patient: false, open_ended: false, images: false, experimental_judge: false}

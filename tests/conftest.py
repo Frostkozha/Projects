@@ -11,7 +11,7 @@ from gate_classifier.adapters import Passage
 from gate_classifier.audit import AlertDispatcher, InMemoryAlertQueue, InMemoryAuditSink, OperationalAlarms
 from gate_classifier.config import load_config, load_registry
 from gate_classifier.encoder import FixtureTokenizer
-from gate_classifier.orchestrator import FixtureBrain, FixtureRetriever, FixtureVerifier, Orchestrator, Principal
+from gate_classifier.orchestrator import FixtureBrain, FixtureRetriever, Orchestrator, Principal, fixture_verifier
 from gate_classifier.schema import LIBRARY_IDS, RISK_LABELS
 from gate_classifier.service import GateService
 from gate_classifier.session import InMemorySessionStore
@@ -82,6 +82,24 @@ def passages() -> list[Passage]:
 ITEMS = {"item-e1": ("v1", ("fixture-q1", "fixture-p1"))}
 
 
+class SpyVerifier:
+    """Counts calls into the real fixture-mode verifier and records the trusted contexts it saw."""
+
+    def __init__(self, inner=None):
+        self.inner = inner or fixture_verifier()
+        self.rules = self.inner.rules
+        self.calls = 0
+        self.seen: list = []
+        self.results: list = []
+
+    def verify(self, request, context):
+        self.calls += 1
+        self.seen.append(context)
+        result = self.inner.verify(request, context)
+        self.results.append(result)
+        return result
+
+
 class Harness:
     def __init__(self, scorer: Optional[ScriptedScorer] = None, *, config_overrides: Optional[dict] = None,
                  audit=None, alert_sink=None, verifier="default", retriever=None, brain=None,
@@ -105,7 +123,7 @@ class Harness:
         self.sessions = InMemorySessionStore(cfg.runtime.session_ttl_minutes)
         self.retriever = retriever or FixtureRetriever(passages(), KB, items=ITEMS)
         self.brain = brain or FixtureBrain()
-        self.verifier = FixtureVerifier() if verifier == "default" else verifier
+        self.verifier = SpyVerifier() if verifier == "default" else verifier
         self.orch = Orchestrator(self.service, self.sessions, self.retriever, self.brain, self.verifier, kb_version=KB)
         self.principal = Principal("owner-a", TENANT, COURSE)
 
@@ -126,4 +144,4 @@ def make_harness():
     return Harness
 
 
-__all__ = ["scores", "ScriptedScorer", "Harness", "LIBRARY_IDS"]
+__all__ = ["scores", "ScriptedScorer", "Harness", "SpyVerifier", "LIBRARY_IDS"]

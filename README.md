@@ -1,10 +1,12 @@
-# Medical AI Education Project, Module A: Gate Classifier and Retriever v0.2 (English-only)
+# Medical AI Education Project, Module A: Gate Classifier, Retriever and Verifier v0.2 (English-only)
 
-Two packages for the histology study tutor:
+Packages for the histology study tutor:
 
 - `gate_classifier/`: the text gate (`Gate Classifier English-Only Implementation Specification v0.2`).
 - `retriever/`: permitted-evidence retrieval (`Retriever English-Only Implementation Specification v0.2`).
   See [Retriever](#retriever-v02) below.
+- `contracts/` and `verifier/`: sentence-level Brain draft contract and claim verification
+  (`Verifier Technical Plan English v0.2`). See [docs/verifier.md](docs/verifier.md).
 
 **Status: development package.** No trained weights, reviewed dataset, measured accuracy/latency or
 production approval are included. Completing this code is not approval to collect student data or
@@ -138,3 +140,17 @@ source is quarantined), then validate, build and search with `config/retriever_r
   or are blank/scanned are quarantined for reviewed transcription.
 - The bounded worker is a thread; a stuck model call is abandoned (bounded restarts, then not ready).
   Production should move inference into a killable worker process.
+
+## Verifier v0.2
+
+Every Brain draft sentence is checked against the passages the Brain was shown: format and output
+policy, citation integrity and live source eligibility, hard facts (numbers, units, negation,
+laterality, quantifiers), three-class NLI with `cross-encoder/nli-deberta-v3-xsmall`, then answer-level
+rules (trimming, hidden answers, coverage, conflicts). Only the authorized compiled payload reaches a
+student. Full details, Windows provisioning commands and the migration note: [docs/verifier.md](docs/verifier.md).
+
+```bash
+pytest tests/verifier                      # injected-score unit tests + tiny local model integration
+python scripts/check_verifier.py           # after provisioning the real NLI model (see docs)
+```
+

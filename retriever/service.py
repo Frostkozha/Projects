@@ -518,6 +518,23 @@ class RetrieverService:
                 return (m.item_id, m.item_version)
         return None
 
+    def passage_eligibility(self, passage_ids: tuple[str, ...], kb_version: str,
+                            ctx: RetrievalContext) -> dict[str, bool]:
+        """Live eligibility (rights, approval, scope, review dates, revocation) for the verifier and delivery.
+
+        Raises RetrievalError when the registry/snapshot cannot be consulted; never a permissive answer.
+        """
+        self._check_context(ctx, ctx.course_id)
+        snap = self._pin(ctx, kb_version)
+        self.revocations.refresh()
+        active = self.active_authorized(ctx)
+        now = self.now()
+        out = {}
+        for pid in passage_ids:
+            row = snap.by_id.get(pid)
+            out[pid] = bool(row is not None and self._usable(snap, row, active, ctx, now))
+        return out
+
     def get_evidence(self, passage_id: str, kb_version: str, ctx: RetrievalContext) -> EvidencePassage:
         """Citation endpoint: access-checked lookup of one stored passage. Raises RetrievalError."""
         self._check_context(ctx, ctx.course_id)

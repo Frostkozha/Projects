@@ -6,3 +6,4 @@ artifacts/*
 !artifacts/README.md
 *.egg-info/
 build/
+outputs/

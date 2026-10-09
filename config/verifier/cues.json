@@ -1,0 +1,21 @@
+{
+  "review": {"status": "development", "note": "Candidate cue lists; Content Lead review required before release."},
+  "negation": ["not", "no", "never", "without", "none", "cannot", "n't", "absent", "lacks", "lack", "neither", "nor"],
+  "exception": ["unless", "except", "excepting", "only if", "provided that", "but not", "other than"],
+  "condition": ["if", "when", "whenever", "in case", "only when"],
+  "quantifier_scale": {"some": 1, "sometimes": 1, "may": 1, "can": 1, "occasionally": 1, "few": 1,
+                       "many": 2, "often": 2, "usually": 2, "most": 2, "typically": 2, "generally": 2, "commonly": 2,
+                       "all": 3, "always": 3, "every": 3, "each": 3, "invariably": 3, "only": 3},
+  "causal": ["causes", "cause", "caused", "leads to", "results in", "because", "therefore", "due to"],
+  "comparative": ["than", "compared", "whereas", "while", "in contrast", "unlike", "similar to"],
+  "sequence": ["first", "second", "third", "then", "next", "finally", "step", "afterwards", "before", "after"],
+  "dependent_starts": ["it", "its", "this", "these", "that", "those", "they", "their", "them", "he", "she",
+                       "however", "therefore", "thus", "also", "in contrast", "then", "next", "so", "hence",
+                       "moreover", "furthermore", "additionally", "similarly", "consequently", "here", "there",
+                       "the latter", "the former", "both", "such"],
+  "high_risk_terms": ["dose", "dosage", "drug", "contraindicated", "contraindication", "mg", "mcg", "toxic",
+                      "lethal", "overdose", "left", "right", "step", "steps"],
+  "number_words": {"zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7,
+                   "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12, "twenty": 20, "hundred": 100,
+                   "single": 1, "double": 2}
+}

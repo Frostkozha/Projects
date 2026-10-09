@@ -1,0 +1,10 @@
+{
+  "review": {"status": "development", "note": "Candidate pairs; Content Lead review required before release."},
+  "pairs": [["left", "right"], ["anterior", "posterior"], ["superior", "inferior"], ["medial", "lateral"],
+            ["proximal", "distal"], ["afferent", "efferent"], ["apical", "basal"], ["dorsal", "ventral"],
+            ["increase", "decrease"], ["increases", "decreases"], ["increased", "decreased"],
+            ["higher", "lower"], ["more", "less"], ["thick", "thin"], ["thicker", "thinner"],
+            ["single", "multiple"], ["simple", "stratified"], ["vascular", "avascular"],
+            ["keratinised", "nonkeratinised"], ["keratinized", "nonkeratinized"],
+            ["inspiration", "expiration"], ["contraction", "relaxation"], ["sympathetic", "parasympathetic"]]
+}
