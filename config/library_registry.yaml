@@ -1,0 +1,15 @@
+# Development library registry. Library IDs are categories, not source tiers or models.
+# "indexed"/"approved" are development fixture values; real values come from the approved
+# source registry maintained by faculty/content reviewers.
+registry_version: histology-registry-dev-0.1
+courses:
+  histology-dev:
+    tenant_id: dev-tenant
+    course_kind: histology_pilot
+    libraries:
+      lib1: {category: "Faculty-approved lecture notes and slides", enabled: true, indexed: true, approved: true}
+      lib2: {category: "Permitted, faculty-approved syllabus textbooks", enabled: true, indexed: true, approved: true}
+      lib3: {category: "Kazakhstan clinical protocols", enabled: false}
+      lib4: {category: "International clinical guidelines", enabled: false}
+      lib5: {category: "Faculty-approved practice question bank", enabled: true, indexed: true, approved: true}
+      lib6: {category: "Approved atlases, image captions/keys and video transcripts (text records only)", enabled: true, indexed: true, approved: true}

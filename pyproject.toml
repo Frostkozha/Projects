@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gate-classifier"
+version = "0.2.0.dev0"
+description = "English-only text gate for the Medical AI Education Project, Module A (development package)"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+  "numpy",
+  "scikit-learn",
+  "pydantic>=2",
+  "PyYAML",
+  "fastapi",
+  "uvicorn",
+]
+
+[project.optional-dependencies]
+model = ["torch", "transformers", "spacy"]
+dev = ["pytest", "httpx"]
+
+[tool.setuptools.packages.find]
+include = ["gate_classifier*", "training*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+  "realmodel: needs locally provisioned real artifacts (skipped when absent)",
+]

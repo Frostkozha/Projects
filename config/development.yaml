@@ -1,0 +1,88 @@
+# Gate Classifier development configuration (spec v0.2).
+# DEVELOPMENT ONLY. Thresholds are the Section 8.1 starting values, not evaluated
+# production thresholds. Contacts are placeholders and are refused by production readiness.
+config_schema: gate-config-0.2
+operating_mode: fixture          # fixture | development | production
+policy_version: gate-policy-0.2
+rules_version: gate-rules-0.2
+
+encoder:
+  model_id: intfloat/e5-small-v2
+  revision: null                 # pin an exact commit during bootstrap; required outside fixture mode
+  tokenizer_revision: null
+  local_path: artifacts/encoders/e5-small-v2
+  prefix: "query: "
+  pooling: mean
+  normalization: l2
+  dimension: 384
+  max_tokens: 512
+  torch_threads: 2
+
+privacy:
+  name_detector: rules           # "spacy" requires a locally installed, pinned en_core_web_sm
+  spacy_model_path: null
+  spacy_model_version: null
+
+limits:
+  max_body_bytes: 32768
+  max_chars: 4000
+  max_current_tokens: 320
+  max_context_tokens: 128
+  max_total_tokens: 512
+
+thresholds:
+  risks:
+    real_person_advice:   {uncertainty: 0.15, block: 0.30}
+    imminent_emergency:   {uncertainty: 0.10, block: 0.25}
+    self_harm_crisis:     {uncertainty: 0.10, block: 0.25}
+    assessed_work:        {uncertainty: 0.35, block: 0.60}
+    instruction_override: {uncertainty: 0.35, block: 0.60}
+    private_data_request: {uncertainty: 0.35, block: 0.60}
+  topic: 0.70
+  mode: 0.70
+  library_preference: 0.50
+  max_preferred_libraries: 3
+
+runtime:
+  deadline_seconds: 2.0
+  queue_capacity: 32
+  workers: 1
+  session_ttl_minutes: 30
+  stuck_worker_seconds: 10.0
+  max_worker_restarts: 3
+
+audit:
+  metadata_sink: memory          # production: jsonl (or another access-controlled sink) with retention
+  metadata_path: null
+  restricted_text_store_enabled: false
+  audit_metadata_retention_days: null
+  restricted_text_retention_days: null
+
+alerts:
+  max_attempts: 4
+  base_backoff_seconds: 0.05
+  adapter: memory
+  queue_path: null
+
+bundle_path: null
+
+contacts:
+  approved_emergency_contact: "PLACEHOLDER-EMERGENCY-CONTACT"
+  approved_student_support_contact: "PLACEHOLDER-STUDENT-SUPPORT"
+
+replies:
+  real_person: "I cannot advise on a real person's health or interpret personal results. A clinician must assess this. You can ask a separate question about the general course concept."
+  assessed_work: "I cannot complete assessed work or answer a live exam. I can help you study the underlying concept."
+  private_data: "I cannot provide private records, credentials or protected system instructions."
+  instruction_override: "I cannot bypass the source or safety rules. Ask a question about the approved course material."
+  outside_course: "This topic is outside the approved course material for this version. Ask your course lead."
+  nonmedical: "This version supports the approved medical course. Ask a question about its study material."
+  clarify_topic: "Please name the course topic or concept you want help with in English."
+  safety_clarify: "Is this a fictional course exercise or about a real person? For study help, name the general course concept without personal details."
+  unsupported_feature: "This feature is not supported in this version. Ask a text question about the approved course material."
+  no_source: "I could not find enough support in the approved course material. Ask your course lead or check the cited course resources."
+  service_unavailable: "The tutor is temporarily unavailable. Please use your course material and try again later."
+  maintenance: "The AI tutor is paused. Use your course material and contact your course lead."
+  exam_disabled: "The tutor is unavailable during this scheduled assessment."
+  emergency: "If this is happening now, contact {approved_emergency_contact} immediately."
+  self_harm: "If you might hurt yourself or are in immediate danger, contact {approved_emergency_contact} now. You can also contact {approved_student_support_contact} for support."
