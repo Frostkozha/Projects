@@ -54,6 +54,6 @@ python -m training.evaluate ... --partition holdout --confirm-frozen
 
 ## Known gaps
 
-- Real E5 / spaCy paths are untested here (Hugging Face and GitHub were unreachable from the build container).
+- Real E5 encoder verified offline on Windows (Python 3.11, `scripts/check_real_model.py` PASS, pinned revision ffb93f3). The spaCy name detector is still untested.
 - Inference runs in a thread worker; production should use a killable process.
 - Institutional items: contacts, welfare procedure, retention, SSO, approved source registry, reviewed dataset.
