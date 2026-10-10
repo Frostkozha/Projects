@@ -1,0 +1,1 @@
+This directory holds synthetic benchmark output only. Real student content is not allowed here.

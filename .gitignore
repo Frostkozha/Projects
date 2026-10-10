@@ -7,3 +7,9 @@ artifacts/*
 *.egg-info/
 build/
 outputs/
+secrets/
+!artifacts/brain/
+artifacts/brain/*
+!artifacts/brain/qwen35-9b-q4/
+artifacts/brain/qwen35-9b-q4/*
+!artifacts/brain/qwen35-9b-q4/manifest.json

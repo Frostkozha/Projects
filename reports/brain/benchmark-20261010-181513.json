@@ -1,0 +1,1438 @@
+{
+  "summary": {
+    "ready": true,
+    "dataset": "tests/fixtures/brain/synthetic.jsonl",
+    "repeats": 3,
+    "identity": {
+      "model_version": "qwen35-9b-q4.03b74727a860",
+      "runtime_version": "b11435-43fe9c642",
+      "prompt_version": "brain-prompt-0.2",
+      "sampling_profile_version": "grounded-dev-0.2"
+    },
+    "vram": {
+      "samples": 189,
+      "min_free_mib": 1854,
+      "max_free_mib": 7106
+    },
+    "ram_end": {
+      "total_mib": 32678,
+      "available_mib": 18715,
+      "commit_limit_mib": 37359,
+      "commit_available_mib": 18712
+    },
+    "started": 1791638002.243488,
+    "duration_s": 111.5,
+    "content_policy": "synthetic-only",
+    "note": "Structural/operational metrics only. Not faculty-labelled; not release validation.",
+    "cases": 42,
+    "status_counts": {
+      "ok": 30,
+      "no_evidence": 9,
+      "error": 3
+    },
+    "error_counts": {
+      "INVALID_REQUEST": 3
+    },
+    "as_expected": {
+      "count": 42,
+      "of": 42,
+      "ci95": [
+        0.9162,
+        1.0
+      ]
+    },
+    "invalid_output": {
+      "count": 0,
+      "of": 39,
+      "ci95": [
+        0.0,
+        0.0897
+      ]
+    },
+    "latency_ms": {
+      "p50": 1922.0,
+      "p95": 4812.1,
+      "p99": 4813.0,
+      "n": 39
+    },
+    "prompt_tokens": {
+      "mean": 434.4,
+      "max": 475
+    },
+    "completion_tokens": {
+      "mean": 169,
+      "max": 381
+    },
+    "prefill_tokens_per_s": 1817.8,
+    "decode_tokens_per_s": 83.0,
+    "consistency": {
+      "dev-001": {
+        "repeats": 3,
+        "distinct_statuses": 1,
+        "distinct_cite_sets": 1,
+        "sentence_count_range": [
+          3,
+          3
+        ]
+      },
+      "dev-002": {
+        "repeats": 3,
+        "distinct_statuses": 1,
+        "distinct_cite_sets": 1,
+        "sentence_count_range": [
+          2,
+          2
+        ]
+      },
+      "dev-003": {
+        "repeats": 3,
+        "distinct_statuses": 1,
+        "distinct_cite_sets": 1,
+        "sentence_count_range": [
+          1,
+          1
+        ]
+      },
+      "dev-004": {
+        "repeats": 3,
+        "distinct_statuses": 1,
+        "distinct_cite_sets": 1,
+        "sentence_count_range": [
+          1,
+          1
+        ]
+      },
+      "dev-005": {
+        "repeats": 3,
+        "distinct_statuses": 1,
+        "distinct_cite_sets": 1,
+        "sentence_count_range": [
+          1,
+          1
+        ]
+      },
+      "dev-006": {
+        "repeats": 3,
+        "distinct_statuses": 1,
+        "distinct_cite_sets": 1,
+        "sentence_count_range": [
+          3,
+          3
+        ]
+      },
+      "dev-007": {
+        "repeats": 3,
+        "distinct_statuses": 1,
+        "distinct_cite_sets": 1,
+        "sentence_count_range": [
+          4,
+          4
+        ]
+      },
+      "dev-008": {
+        "repeats": 3,
+        "distinct_statuses": 1,
+        "distinct_cite_sets": 1,
+        "sentence_count_range": [
+          2,
+          2
+        ]
+      },
+      "dev-009": {
+        "repeats": 3,
+        "distinct_statuses": 1,
+        "distinct_cite_sets": 1,
+        "sentence_count_range": [
+          0,
+          0
+        ]
+      },
+      "dev-010": {
+        "repeats": 3,
+        "distinct_statuses": 1,
+        "distinct_cite_sets": 1,
+        "sentence_count_range": [
+          0,
+          0
+        ]
+      },
+      "dev-011": {
+        "repeats": 3,
+        "distinct_statuses": 1,
+        "distinct_cite_sets": 1,
+        "sentence_count_range": [
+          1,
+          1
+        ]
+      },
+      "dev-012": {
+        "repeats": 3,
+        "distinct_statuses": 1,
+        "distinct_cite_sets": 1,
+        "sentence_count_range": [
+          0,
+          0
+        ]
+      },
+      "dev-013": {
+        "repeats": 3,
+        "distinct_statuses": 1,
+        "distinct_cite_sets": 1,
+        "sentence_count_range": [
+          2,
+          2
+        ]
+      },
+      "dev-014": {
+        "repeats": 3,
+        "distinct_statuses": 1,
+        "distinct_cite_sets": 1,
+        "sentence_count_range": [
+          0,
+          0
+        ]
+      }
+    }
+  },
+  "rows": [
+    {
+      "case_id": "dev-001",
+      "group_id": "grp-epi",
+      "repeat": 0,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 3603.7,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 228.588,
+        "generation_ms": 3335.316,
+        "total_ms": 3609.0,
+        "prompt_tokens": 418,
+        "completion_tokens": 282,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 3,
+      "cites": [
+        "syn-epi-1"
+      ],
+      "draft_digest": "e68d0ef3aff0652c8287c0b21466c61f3f1f0a2d0ee3013bebe36364ad7bcf47",
+      "draft": [
+        "Simple squamous epithelium consists of a single layer of flattened cells.",
+        "This tissue lines blood vessels and the alveoli of the lungs.",
+        "Its thin structure allows for rapid diffusion in these locations."
+      ]
+    },
+    {
+      "case_id": "dev-001",
+      "group_id": "grp-epi",
+      "repeat": 1,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 3609.4,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 230.748,
+        "generation_ms": 3339.819,
+        "total_ms": 3610.0,
+        "prompt_tokens": 418,
+        "completion_tokens": 282,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 3,
+      "cites": [
+        "syn-epi-1"
+      ],
+      "draft_digest": "e68d0ef3aff0652c8287c0b21466c61f3f1f0a2d0ee3013bebe36364ad7bcf47",
+      "draft": [
+        "Simple squamous epithelium consists of a single layer of flattened cells.",
+        "This tissue lines blood vessels and the alveoli of the lungs.",
+        "Its thin structure allows for rapid diffusion in these locations."
+      ]
+    },
+    {
+      "case_id": "dev-001",
+      "group_id": "grp-epi",
+      "repeat": 2,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 3611.5,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 228.911,
+        "generation_ms": 3344.465,
+        "total_ms": 3609.0,
+        "prompt_tokens": 418,
+        "completion_tokens": 282,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 3,
+      "cites": [
+        "syn-epi-1"
+      ],
+      "draft_digest": "e68d0ef3aff0652c8287c0b21466c61f3f1f0a2d0ee3013bebe36364ad7bcf47",
+      "draft": [
+        "Simple squamous epithelium consists of a single layer of flattened cells.",
+        "This tissue lines blood vessels and the alveoli of the lungs.",
+        "Its thin structure allows for rapid diffusion in these locations."
+      ]
+    },
+    {
+      "case_id": "dev-002",
+      "group_id": "grp-epi",
+      "repeat": 0,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 2693.3,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 232.928,
+        "generation_ms": 2420.534,
+        "total_ms": 2688.0,
+        "prompt_tokens": 426,
+        "completion_tokens": 203,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 2,
+      "cites": [
+        "syn-epi-1"
+      ],
+      "draft_digest": "8862c4aebb877c1693e10a16c83d9bef0d4c54d132711e984f90f5a6365c3a3d",
+      "draft": [
+        "A single layer of flat epithelial cells lines the alveoli of the lungs.",
+        "This thin layer allows for rapid diffusion."
+      ]
+    },
+    {
+      "case_id": "dev-002",
+      "group_id": "grp-epi",
+      "repeat": 1,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 2692.8,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 230.849,
+        "generation_ms": 2423.292,
+        "total_ms": 2687.0,
+        "prompt_tokens": 426,
+        "completion_tokens": 203,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 2,
+      "cites": [
+        "syn-epi-1"
+      ],
+      "draft_digest": "8862c4aebb877c1693e10a16c83d9bef0d4c54d132711e984f90f5a6365c3a3d",
+      "draft": [
+        "A single layer of flat epithelial cells lines the alveoli of the lungs.",
+        "This thin layer allows for rapid diffusion."
+      ]
+    },
+    {
+      "case_id": "dev-002",
+      "group_id": "grp-epi",
+      "repeat": 2,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 2687.4,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 230.725,
+        "generation_ms": 2418.76,
+        "total_ms": 2688.0,
+        "prompt_tokens": 426,
+        "completion_tokens": 203,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 2,
+      "cites": [
+        "syn-epi-1"
+      ],
+      "draft_digest": "8862c4aebb877c1693e10a16c83d9bef0d4c54d132711e984f90f5a6365c3a3d",
+      "draft": [
+        "A single layer of flat epithelial cells lines the alveoli of the lungs.",
+        "This thin layer allows for rapid diffusion."
+      ]
+    },
+    {
+      "case_id": "dev-003",
+      "group_id": "grp-gob",
+      "repeat": 0,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 1766.2,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 254.703,
+        "generation_ms": 1463.466,
+        "total_ms": 1781.0,
+        "prompt_tokens": 463,
+        "completion_tokens": 121,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 1,
+      "cites": [
+        "syn-gob-1"
+      ],
+      "draft_digest": "9d259dc519206a2d810bf8d93974e208702e47cbd48f71c75a33bb279e89319b",
+      "draft": [
+        "Goblet cells secrete mucus."
+      ]
+    },
+    {
+      "case_id": "dev-003",
+      "group_id": "grp-gob",
+      "repeat": 1,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 1752.0,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 244.573,
+        "generation_ms": 1460.054,
+        "total_ms": 1750.0,
+        "prompt_tokens": 463,
+        "completion_tokens": 121,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 1,
+      "cites": [
+        "syn-gob-1"
+      ],
+      "draft_digest": "9d259dc519206a2d810bf8d93974e208702e47cbd48f71c75a33bb279e89319b",
+      "draft": [
+        "Goblet cells secrete mucus."
+      ]
+    },
+    {
+      "case_id": "dev-003",
+      "group_id": "grp-gob",
+      "repeat": 2,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 1761.9,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 245.032,
+        "generation_ms": 1469.57,
+        "total_ms": 1750.0,
+        "prompt_tokens": 463,
+        "completion_tokens": 121,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 1,
+      "cites": [
+        "syn-gob-1"
+      ],
+      "draft_digest": "9d259dc519206a2d810bf8d93974e208702e47cbd48f71c75a33bb279e89319b",
+      "draft": [
+        "Goblet cells secrete mucus."
+      ]
+    },
+    {
+      "case_id": "dev-004",
+      "group_id": "grp-strat",
+      "repeat": 0,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 1928.7,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 237.163,
+        "generation_ms": 1653.312,
+        "total_ms": 1922.0,
+        "prompt_tokens": 432,
+        "completion_tokens": 137,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 1,
+      "cites": [
+        "syn-strat-1"
+      ],
+      "draft_digest": "c4117019974eb3651a83cb67f2301fd9974967d986030c36bcbd3f4b3d93a00e",
+      "draft": [
+        "The oesophagus is lined by stratified squamous epithelium because this tissue protects tissues that face abrasion."
+      ]
+    },
+    {
+      "case_id": "dev-004",
+      "group_id": "grp-strat",
+      "repeat": 1,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 1928.9,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 236.42,
+        "generation_ms": 1653.169,
+        "total_ms": 1922.0,
+        "prompt_tokens": 432,
+        "completion_tokens": 137,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 1,
+      "cites": [
+        "syn-strat-1"
+      ],
+      "draft_digest": "c4117019974eb3651a83cb67f2301fd9974967d986030c36bcbd3f4b3d93a00e",
+      "draft": [
+        "The oesophagus is lined by stratified squamous epithelium because this tissue protects tissues that face abrasion."
+      ]
+    },
+    {
+      "case_id": "dev-004",
+      "group_id": "grp-strat",
+      "repeat": 2,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 1924.3,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 237.397,
+        "generation_ms": 1647.893,
+        "total_ms": 1922.0,
+        "prompt_tokens": 432,
+        "completion_tokens": 137,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 1,
+      "cites": [
+        "syn-strat-1"
+      ],
+      "draft_digest": "c4117019974eb3651a83cb67f2301fd9974967d986030c36bcbd3f4b3d93a00e",
+      "draft": [
+        "The oesophagus is lined by stratified squamous epithelium because this tissue protects tissues that face abrasion."
+      ]
+    },
+    {
+      "case_id": "dev-005",
+      "group_id": "grp-cil",
+      "repeat": 0,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 1855.5,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 249.221,
+        "generation_ms": 1556.278,
+        "total_ms": 1859.0,
+        "prompt_tokens": 467,
+        "completion_tokens": 129,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 1,
+      "cites": [
+        "syn-cil-1"
+      ],
+      "draft_digest": "0f9e4b77178ae945f0463046b4304ce5b6a1c7c9ea34db0e7915f100a89c74da",
+      "draft": [
+        "Ciliated cells in the trachea move mucus toward the pharynx."
+      ]
+    },
+    {
+      "case_id": "dev-005",
+      "group_id": "grp-cil",
+      "repeat": 1,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 1850.7,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 248.478,
+        "generation_ms": 1554.635,
+        "total_ms": 1860.0,
+        "prompt_tokens": 467,
+        "completion_tokens": 129,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 1,
+      "cites": [
+        "syn-cil-1"
+      ],
+      "draft_digest": "0f9e4b77178ae945f0463046b4304ce5b6a1c7c9ea34db0e7915f100a89c74da",
+      "draft": [
+        "Ciliated cells in the trachea move mucus toward the pharynx."
+      ]
+    },
+    {
+      "case_id": "dev-005",
+      "group_id": "grp-cil",
+      "repeat": 2,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 1853.4,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 247.882,
+        "generation_ms": 1558.49,
+        "total_ms": 1844.0,
+        "prompt_tokens": 467,
+        "completion_tokens": 129,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 1,
+      "cites": [
+        "syn-cil-1"
+      ],
+      "draft_digest": "0f9e4b77178ae945f0463046b4304ce5b6a1c7c9ea34db0e7915f100a89c74da",
+      "draft": [
+        "Ciliated cells in the trachea move mucus toward the pharynx."
+      ]
+    },
+    {
+      "case_id": "dev-006",
+      "group_id": "grp-kera",
+      "repeat": 0,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 3597.0,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 250.269,
+        "generation_ms": 3299.485,
+        "total_ms": 3593.0,
+        "prompt_tokens": 475,
+        "completion_tokens": 278,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 3,
+      "cites": [
+        "syn-kera-1"
+      ],
+      "draft_digest": "6aac20c541cb6de5fef2ade1fa364d416a72c42a29bf5710a7e52f1c360de564",
+      "draft": [
+        "The epidermis is made of keratinized stratified squamous epithelium.",
+        "The outer cells of this tissue are dead and filled with keratin.",
+        "This keratin resists water loss."
+      ]
+    },
+    {
+      "case_id": "dev-006",
+      "group_id": "grp-kera",
+      "repeat": 1,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 3595.7,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 249.125,
+        "generation_ms": 3296.78,
+        "total_ms": 3610.0,
+        "prompt_tokens": 475,
+        "completion_tokens": 278,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 3,
+      "cites": [
+        "syn-kera-1"
+      ],
+      "draft_digest": "6aac20c541cb6de5fef2ade1fa364d416a72c42a29bf5710a7e52f1c360de564",
+      "draft": [
+        "The epidermis is made of keratinized stratified squamous epithelium.",
+        "The outer cells of this tissue are dead and filled with keratin.",
+        "This keratin resists water loss."
+      ]
+    },
+    {
+      "case_id": "dev-006",
+      "group_id": "grp-kera",
+      "repeat": 2,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 3599.4,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 248.69,
+        "generation_ms": 3302.111,
+        "total_ms": 3593.0,
+        "prompt_tokens": 475,
+        "completion_tokens": 278,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 3,
+      "cites": [
+        "syn-kera-1"
+      ],
+      "draft_digest": "6aac20c541cb6de5fef2ade1fa364d416a72c42a29bf5710a7e52f1c360de564",
+      "draft": [
+        "The epidermis is made of keratinized stratified squamous epithelium.",
+        "The outer cells of this tissue are dead and filled with keratin.",
+        "This keratin resists water loss."
+      ]
+    },
+    {
+      "case_id": "dev-007",
+      "group_id": "grp-multi",
+      "repeat": 0,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 4807.6,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 248.89,
+        "generation_ms": 4510.686,
+        "total_ms": 4813.0,
+        "prompt_tokens": 473,
+        "completion_tokens": 381,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 4,
+      "cites": [
+        "syn-epi-1",
+        "syn-strat-1"
+      ],
+      "draft_digest": "e5abc316b168c70d61c5bce5aa0c4a6ad4998f8aa68bf91c0515f5be42d48d93",
+      "draft": [
+        "Simple squamous epithelium consists of a single layer of flattened cells.",
+        "This tissue lines blood vessels and the alveoli of the lungs to allow rapid diffusion.",
+        "Stratified squamous epithelium is composed of many cell layers.",
+        "Its surface cells are flattened and it protects tissues that face abrasion, such as the lining of the oesophagus."
+      ]
+    },
+    {
+      "case_id": "dev-007",
+      "group_id": "grp-multi",
+      "repeat": 1,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 4812.3,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 251.437,
+        "generation_ms": 4512.958,
+        "total_ms": 4812.0,
+        "prompt_tokens": 473,
+        "completion_tokens": 381,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 4,
+      "cites": [
+        "syn-epi-1",
+        "syn-strat-1"
+      ],
+      "draft_digest": "e5abc316b168c70d61c5bce5aa0c4a6ad4998f8aa68bf91c0515f5be42d48d93",
+      "draft": [
+        "Simple squamous epithelium consists of a single layer of flattened cells.",
+        "This tissue lines blood vessels and the alveoli of the lungs to allow rapid diffusion.",
+        "Stratified squamous epithelium is composed of many cell layers.",
+        "Its surface cells are flattened and it protects tissues that face abrasion, such as the lining of the oesophagus."
+      ]
+    },
+    {
+      "case_id": "dev-007",
+      "group_id": "grp-multi",
+      "repeat": 2,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 4819.6,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 249.32,
+        "generation_ms": 4522.649,
+        "total_ms": 4813.0,
+        "prompt_tokens": 473,
+        "completion_tokens": 381,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 4,
+      "cites": [
+        "syn-epi-1",
+        "syn-strat-1"
+      ],
+      "draft_digest": "e5abc316b168c70d61c5bce5aa0c4a6ad4998f8aa68bf91c0515f5be42d48d93",
+      "draft": [
+        "Simple squamous epithelium consists of a single layer of flattened cells.",
+        "This tissue lines blood vessels and the alveoli of the lungs to allow rapid diffusion.",
+        "Stratified squamous epithelium is composed of many cell layers.",
+        "Its surface cells are flattened and it protects tissues that face abrasion, such as the lining of the oesophagus."
+      ]
+    },
+    {
+      "case_id": "dev-008",
+      "group_id": "grp-basic",
+      "repeat": 0,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 2710.2,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 230.736,
+        "generation_ms": 2441.295,
+        "total_ms": 2719.0,
+        "prompt_tokens": 413,
+        "completion_tokens": 204,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 2,
+      "cites": [
+        "syn-gob-1"
+      ],
+      "draft_digest": "2ef3123f34dc1107753d730d745fe46921854143388c0478740f7e07837787a0",
+      "draft": [
+        "Goblet cells are small glands that make mucus.",
+        "They are found mixed with other cells in the lining of the intestines and lungs."
+      ]
+    },
+    {
+      "case_id": "dev-008",
+      "group_id": "grp-basic",
+      "repeat": 1,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 2707.1,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 231.018,
+        "generation_ms": 2438.22,
+        "total_ms": 2703.0,
+        "prompt_tokens": 413,
+        "completion_tokens": 204,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 2,
+      "cites": [
+        "syn-gob-1"
+      ],
+      "draft_digest": "2ef3123f34dc1107753d730d745fe46921854143388c0478740f7e07837787a0",
+      "draft": [
+        "Goblet cells are small glands that make mucus.",
+        "They are found mixed with other cells in the lining of the intestines and lungs."
+      ]
+    },
+    {
+      "case_id": "dev-008",
+      "group_id": "grp-basic",
+      "repeat": 2,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 2706.5,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 231.735,
+        "generation_ms": 2436.243,
+        "total_ms": 2703.0,
+        "prompt_tokens": 413,
+        "completion_tokens": 204,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 2,
+      "cites": [
+        "syn-gob-1"
+      ],
+      "draft_digest": "2ef3123f34dc1107753d730d745fe46921854143388c0478740f7e07837787a0",
+      "draft": [
+        "Goblet cells are small glands that make mucus.",
+        "They are found mixed with other cells in the lining of the intestines and lungs."
+      ]
+    },
+    {
+      "case_id": "dev-009",
+      "group_id": "grp-abst",
+      "repeat": 0,
+      "status": "no_evidence",
+      "error_code": null,
+      "expected_status": [
+        "no_evidence"
+      ],
+      "expected_error": null,
+      "wall_ms": 842.3,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 230.832,
+        "generation_ms": 570.571,
+        "total_ms": 844.0,
+        "prompt_tokens": 415,
+        "completion_tokens": 45,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 0,
+      "cites": [],
+      "draft_digest": "c081ad4d71eac39289a4786b6582888a1806e5ff8e6e0b5916dc66fdf3891671",
+      "draft": []
+    },
+    {
+      "case_id": "dev-009",
+      "group_id": "grp-abst",
+      "repeat": 1,
+      "status": "no_evidence",
+      "error_code": null,
+      "expected_status": [
+        "no_evidence"
+      ],
+      "expected_error": null,
+      "wall_ms": 840.3,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 231.167,
+        "generation_ms": 569.771,
+        "total_ms": 843.0,
+        "prompt_tokens": 415,
+        "completion_tokens": 45,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 0,
+      "cites": [],
+      "draft_digest": "c081ad4d71eac39289a4786b6582888a1806e5ff8e6e0b5916dc66fdf3891671",
+      "draft": []
+    },
+    {
+      "case_id": "dev-009",
+      "group_id": "grp-abst",
+      "repeat": 2,
+      "status": "no_evidence",
+      "error_code": null,
+      "expected_status": [
+        "no_evidence"
+      ],
+      "expected_error": null,
+      "wall_ms": 837.7,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 230.86,
+        "generation_ms": 568.439,
+        "total_ms": 844.0,
+        "prompt_tokens": 415,
+        "completion_tokens": 45,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 0,
+      "cites": [],
+      "draft_digest": "c081ad4d71eac39289a4786b6582888a1806e5ff8e6e0b5916dc66fdf3891671",
+      "draft": []
+    },
+    {
+      "case_id": "dev-010",
+      "group_id": "grp-abst",
+      "repeat": 0,
+      "status": "no_evidence",
+      "error_code": null,
+      "expected_status": [
+        "no_evidence"
+      ],
+      "expected_error": null,
+      "wall_ms": 840.8,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 231.223,
+        "generation_ms": 571.245,
+        "total_ms": 828.0,
+        "prompt_tokens": 416,
+        "completion_tokens": 45,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 0,
+      "cites": [],
+      "draft_digest": "c081ad4d71eac39289a4786b6582888a1806e5ff8e6e0b5916dc66fdf3891671",
+      "draft": []
+    },
+    {
+      "case_id": "dev-010",
+      "group_id": "grp-abst",
+      "repeat": 1,
+      "status": "no_evidence",
+      "error_code": null,
+      "expected_status": [
+        "no_evidence"
+      ],
+      "expected_error": null,
+      "wall_ms": 839.6,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 231.718,
+        "generation_ms": 570.157,
+        "total_ms": 844.0,
+        "prompt_tokens": 416,
+        "completion_tokens": 45,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 0,
+      "cites": [],
+      "draft_digest": "c081ad4d71eac39289a4786b6582888a1806e5ff8e6e0b5916dc66fdf3891671",
+      "draft": []
+    },
+    {
+      "case_id": "dev-010",
+      "group_id": "grp-abst",
+      "repeat": 2,
+      "status": "no_evidence",
+      "error_code": null,
+      "expected_status": [
+        "no_evidence"
+      ],
+      "expected_error": null,
+      "wall_ms": 842.8,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 231.819,
+        "generation_ms": 573.107,
+        "total_ms": 844.0,
+        "prompt_tokens": 416,
+        "completion_tokens": 45,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 0,
+      "cites": [],
+      "draft_digest": "c081ad4d71eac39289a4786b6582888a1806e5ff8e6e0b5916dc66fdf3891671",
+      "draft": []
+    },
+    {
+      "case_id": "dev-011",
+      "group_id": "grp-host",
+      "repeat": 0,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok",
+        "no_evidence"
+      ],
+      "expected_error": null,
+      "wall_ms": 1748.5,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 229.901,
+        "generation_ms": 1479.509,
+        "total_ms": 1750.0,
+        "prompt_tokens": 411,
+        "completion_tokens": 122,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 1,
+      "cites": [
+        "syn-host-1"
+      ],
+      "draft_digest": "e8dcd5332f42efba813e9418a68519d5c45386e7e637a1e455d83115419ad43c",
+      "draft": [
+        "Transitional epithelium is found lining the urinary bladder."
+      ]
+    },
+    {
+      "case_id": "dev-011",
+      "group_id": "grp-host",
+      "repeat": 1,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok",
+        "no_evidence"
+      ],
+      "expected_error": null,
+      "wall_ms": 1741.3,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 229.166,
+        "generation_ms": 1473.086,
+        "total_ms": 1734.0,
+        "prompt_tokens": 411,
+        "completion_tokens": 122,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 1,
+      "cites": [
+        "syn-host-1"
+      ],
+      "draft_digest": "e8dcd5332f42efba813e9418a68519d5c45386e7e637a1e455d83115419ad43c",
+      "draft": [
+        "Transitional epithelium is found lining the urinary bladder."
+      ]
+    },
+    {
+      "case_id": "dev-011",
+      "group_id": "grp-host",
+      "repeat": 2,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok",
+        "no_evidence"
+      ],
+      "expected_error": null,
+      "wall_ms": 1747.8,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 229.044,
+        "generation_ms": 1479.792,
+        "total_ms": 1750.0,
+        "prompt_tokens": 411,
+        "completion_tokens": 122,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 1,
+      "cites": [
+        "syn-host-1"
+      ],
+      "draft_digest": "e8dcd5332f42efba813e9418a68519d5c45386e7e637a1e455d83115419ad43c",
+      "draft": [
+        "Transitional epithelium is found lining the urinary bladder."
+      ]
+    },
+    {
+      "case_id": "dev-012",
+      "group_id": "grp-host",
+      "repeat": 0,
+      "status": "no_evidence",
+      "error_code": null,
+      "expected_status": [
+        "ok",
+        "no_evidence"
+      ],
+      "expected_error": null,
+      "wall_ms": 842.0,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 235.568,
+        "generation_ms": 568.453,
+        "total_ms": 844.0,
+        "prompt_tokens": 427,
+        "completion_tokens": 45,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 0,
+      "cites": [],
+      "draft_digest": "c081ad4d71eac39289a4786b6582888a1806e5ff8e6e0b5916dc66fdf3891671",
+      "draft": []
+    },
+    {
+      "case_id": "dev-012",
+      "group_id": "grp-host",
+      "repeat": 1,
+      "status": "no_evidence",
+      "error_code": null,
+      "expected_status": [
+        "ok",
+        "no_evidence"
+      ],
+      "expected_error": null,
+      "wall_ms": 843.4,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 235.487,
+        "generation_ms": 569.862,
+        "total_ms": 844.0,
+        "prompt_tokens": 427,
+        "completion_tokens": 45,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 0,
+      "cites": [],
+      "draft_digest": "c081ad4d71eac39289a4786b6582888a1806e5ff8e6e0b5916dc66fdf3891671",
+      "draft": []
+    },
+    {
+      "case_id": "dev-012",
+      "group_id": "grp-host",
+      "repeat": 2,
+      "status": "no_evidence",
+      "error_code": null,
+      "expected_status": [
+        "ok",
+        "no_evidence"
+      ],
+      "expected_error": null,
+      "wall_ms": 843.5,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 235.611,
+        "generation_ms": 569.768,
+        "total_ms": 843.0,
+        "prompt_tokens": 427,
+        "completion_tokens": 45,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 0,
+      "cites": [],
+      "draft_digest": "c081ad4d71eac39289a4786b6582888a1806e5ff8e6e0b5916dc66fdf3891671",
+      "draft": []
+    },
+    {
+      "case_id": "dev-013",
+      "group_id": "grp-epi",
+      "repeat": 0,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 2718.8,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 232.715,
+        "generation_ms": 2448.021,
+        "total_ms": 2719.0,
+        "prompt_tokens": 411,
+        "completion_tokens": 205,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 2,
+      "cites": [
+        "syn-epi-cf"
+      ],
+      "draft_digest": "09008ae8c4743361ed4b3ca8d7cac65a726ad8b984f58bad1d80fb7e9404dd87",
+      "draft": [
+        "Simple squamous epithelium has three layers of cuboidal cells.",
+        "It lines blood vessels and the alveoli of the lungs."
+      ]
+    },
+    {
+      "case_id": "dev-013",
+      "group_id": "grp-epi",
+      "repeat": 1,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 2713.3,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 228.919,
+        "generation_ms": 2445.912,
+        "total_ms": 2719.0,
+        "prompt_tokens": 411,
+        "completion_tokens": 205,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 2,
+      "cites": [
+        "syn-epi-cf"
+      ],
+      "draft_digest": "09008ae8c4743361ed4b3ca8d7cac65a726ad8b984f58bad1d80fb7e9404dd87",
+      "draft": [
+        "Simple squamous epithelium has three layers of cuboidal cells.",
+        "It lines blood vessels and the alveoli of the lungs."
+      ]
+    },
+    {
+      "case_id": "dev-013",
+      "group_id": "grp-epi",
+      "repeat": 2,
+      "status": "ok",
+      "error_code": null,
+      "expected_status": [
+        "ok"
+      ],
+      "expected_error": null,
+      "wall_ms": 2721.0,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": 228.145,
+        "generation_ms": 2452.22,
+        "total_ms": 2719.0,
+        "prompt_tokens": 411,
+        "completion_tokens": 205,
+        "finish_reason": "stop"
+      },
+      "as_expected": true,
+      "sentences": 2,
+      "cites": [
+        "syn-epi-cf"
+      ],
+      "draft_digest": "09008ae8c4743361ed4b3ca8d7cac65a726ad8b984f58bad1d80fb7e9404dd87",
+      "draft": [
+        "Simple squamous epithelium has three layers of cuboidal cells.",
+        "It lines blood vessels and the alveoli of the lungs."
+      ]
+    },
+    {
+      "case_id": "dev-014",
+      "group_id": "grp-ctl",
+      "repeat": 0,
+      "status": "error",
+      "error_code": "INVALID_REQUEST",
+      "expected_status": [
+        "error"
+      ],
+      "expected_error": "INVALID_REQUEST",
+      "wall_ms": 0.2,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": null,
+        "generation_ms": null,
+        "total_ms": 0.0,
+        "prompt_tokens": null,
+        "completion_tokens": null,
+        "finish_reason": null
+      },
+      "as_expected": true
+    },
+    {
+      "case_id": "dev-014",
+      "group_id": "grp-ctl",
+      "repeat": 1,
+      "status": "error",
+      "error_code": "INVALID_REQUEST",
+      "expected_status": [
+        "error"
+      ],
+      "expected_error": "INVALID_REQUEST",
+      "wall_ms": 0.1,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": null,
+        "generation_ms": null,
+        "total_ms": 0.0,
+        "prompt_tokens": null,
+        "completion_tokens": null,
+        "finish_reason": null
+      },
+      "as_expected": true
+    },
+    {
+      "case_id": "dev-014",
+      "group_id": "grp-ctl",
+      "repeat": 2,
+      "status": "error",
+      "error_code": "INVALID_REQUEST",
+      "expected_status": [
+        "error"
+      ],
+      "expected_error": "INVALID_REQUEST",
+      "wall_ms": 0.1,
+      "metrics": {
+        "queue_ms": 0.0,
+        "prompt_ms": null,
+        "generation_ms": null,
+        "total_ms": 0.0,
+        "prompt_tokens": null,
+        "completion_tokens": null,
+        "finish_reason": null
+      },
+      "as_expected": true
+    }
+  ]
+}

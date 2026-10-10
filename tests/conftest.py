@@ -145,3 +145,23 @@ def make_harness():
 
 
 __all__ = ["scores", "ScriptedScorer", "Harness", "SpyVerifier", "LIBRARY_IDS"]
+
+
+# ----------------------------------------------------------------------------- local real-model gating
+
+def pytest_addoption(parser):
+    parser.addoption("--run-local-model", action="store_true", default=False,
+                     help="run tests that start the pinned local GGUF runtime (Brain real-model suite)")
+
+
+def pytest_configure(config):
+    config.addinivalue_line("markers", "local_model: needs the provisioned local Brain GGUF + llama-server")
+
+
+def pytest_collection_modifyitems(config, items):
+    if config.getoption("--run-local-model"):
+        return
+    skip = pytest.mark.skip(reason="local model suite not requested (--run-local-model); NOT counted as passed")
+    for item in items:
+        if "local_model" in item.keywords:
+            item.add_marker(skip)

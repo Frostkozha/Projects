@@ -149,10 +149,10 @@ class Orchestrator:
 
     # ------------------------------------------------------------------ helpers
 
-    def _call(self, fn: Callable, *args):
+    def _call(self, fn: Callable, *args, timeout: Optional[float] = None):
         fut = self._pool.submit(fn, *args)
         try:
-            return fut.result(timeout=self.adapter_timeout)
+            return fut.result(timeout=timeout or self.adapter_timeout)
         except concurrent.futures.TimeoutError:
             fut.cancel()
             raise AdapterError("adapter_timeout") from None
@@ -300,9 +300,13 @@ class Orchestrator:
             return self._unavailable(request_id, "source_state_changed")
         brain_req = BrainRequest(question_text=result.redacted_text, mode=mode, session_context=session_context,
                                  evidence=shown, item_context=item_context,
-                                 system_instruction_version=SYSTEM_INSTRUCTION_VERSION, prompt=prompt)
+                                 system_instruction_version=SYSTEM_INSTRUCTION_VERSION, prompt=prompt,
+                                 request_id=request_id, tenant_id=ctx.tenant_id, course_id=ctx.course_id,
+                                 retrieval=retrieval, registry_version=self.registry.registry_version)
         try:
-            draft = self._call(self.brain.draft, brain_req)
+            # the local Brain owns its own bounded deadline (30 s incl. queue); the adapter wait covers it
+            brain_timeout = float(getattr(self.brain, "deadline_seconds", 0) or 0) + 5.0
+            draft = self._call(self.brain.draft, brain_req, timeout=max(self.adapter_timeout, brain_timeout))
         except AdapterError as exc:
             return self._unavailable(request_id, str(exc))
         if not isinstance(draft, DraftAnswer):
