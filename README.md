@@ -7,6 +7,8 @@ Packages for the histology study tutor:
   See [Retriever](#retriever-v02) below.
 - `contracts/` and `verifier/`: sentence-level Brain draft contract and claim verification
   (`Verifier Technical Plan English v0.2`). See [docs/verifier.md](docs/verifier.md).
+- `brain/`: local drafting service on Qwen3.5-9B Q4_K_M via llama.cpp (`Brain AI Technical and Coding
+  Plan v0.3`). See [docs/brain.md](docs/brain.md).
 
 **Status: development package.** No trained weights, reviewed dataset, measured accuracy/latency or
 production approval are included. Completing this code is not approval to collect student data or

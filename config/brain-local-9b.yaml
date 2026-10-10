@@ -1,0 +1,59 @@
+# Brain local profile: Qwen3.5-9B Q4_K_M, one slot, 4,096 tokens (Brain plan v0.3, sections 3, 6, appendix F).
+# Candidate profile, not a claim of hardware fit; measured records live in the manifest.
+schema_version: brain-config-0.3
+profile: real_model
+candidate_id: qwen35-9b-q4
+manifest_path: artifacts/brain/qwen35-9b-q4/manifest.json
+prompt_version: brain-prompt-0.2
+approved_roots: [".", "D:/models", "D:/llama-cuda"]
+artifacts:
+  model_path: D:/models/Qwen3.5-9B-Q4_K_M.gguf
+  server_binary: D:/llama-cuda/llama-b11435-bin-win-cuda-12.4-x64/llama-server.exe
+  runtime_library_dirs: ["D:/llama-cuda/cudart-llama-bin-win-cuda-12.4-x64"]
+log_path: artifacts/brain/logs/qwen35-9b-q4-server.log
+runtime:
+  host: 127.0.0.1
+  port: 8080
+  alias: brain-local-v02
+  api_key_file: secrets/brain.key
+  parallel: 1
+  context_tokens: 4096
+  gpu_layers_requested: 99
+  threads: 4
+  threads_batch: 4
+  batch_size: 256
+  ubatch_size: 128
+  flash_attention: "on"
+  cache_type_k: f16
+  cache_type_v: f16
+  reasoning: "off"
+  cache_prompt: false
+  context_shift: false
+  web_ui: false
+  fit: "off"
+  cache_ram_mib: 0
+  startup_timeout_seconds: 180
+  shutdown_timeout_seconds: 10
+  cancel_idle_check_seconds: 1
+  idle_probe_interval_seconds: 600
+limits:
+  prompt_tokens: 2816
+  output_tokens: 1024
+  reserve_tokens: 256
+  queue_capacity: 8
+  queue_wait_seconds: 8
+  brain_deadline_seconds: 30
+  response_bytes: 262144
+  min_free_vram_mib: 512
+sampling:
+  profile_version: grounded-dev-0.2
+  temperature: 0.2
+  top_p: 0.9
+  top_k: 20
+  min_p: 0.0
+  presence_penalty: 0.0
+  frequency_penalty: 0.0
+  repeat_penalty: 1.0
+  seed: 20261010
+features:
+  tutor_clue_enabled: false

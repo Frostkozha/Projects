@@ -56,7 +56,13 @@ class BrainRequest(_M):
     evidence: PromptEvidence
     item_context: Optional[str] = None
     system_instruction_version: str
-    prompt: str  # the exact, fully token-counted prompt
+    prompt: str  # the coordinator's fitting prompt; the local Brain renders and counts its own exactly
+    # Trusted binding for the local Brain (brain/adapter.py): frozen evidence is built from these.
+    request_id: Optional[str] = None
+    tenant_id: Optional[str] = None
+    course_id: Optional[str] = None
+    retrieval: Optional[RetrievalResult] = None
+    registry_version: Optional[str] = None
 
 
 class Retriever(Protocol):

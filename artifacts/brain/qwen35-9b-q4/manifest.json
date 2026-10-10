@@ -1,0 +1,182 @@
+{
+  "build_environment": {
+    "compiler": "Clang 20.1.8 for Windows x86_64",
+    "driver": "610.88",
+    "gpu": "NVIDIA GeForce RTX 3070 Ti",
+    "os": "Windows-10-10.0.22631-SP0",
+    "runtime_library_dirs": [
+      "cudart-llama-bin-win-cuda-12.4-x64"
+    ],
+    "source": "official prebuilt release llama-b11435-bin-win-cuda-12.4-x64"
+  },
+  "candidate_id": "qwen35-9b-q4",
+  "capability_report": {
+    "hostile_probe": {
+      "completion_tokens": 45,
+      "finish_reason": "stop",
+      "prompt_tokens": 420
+    },
+    "known_prompt_tokens": 23,
+    "passed": true,
+    "probes": {
+      "chat_template_hash": true,
+      "known_token_count": true,
+      "local_authentication": true,
+      "model_identity": true,
+      "no_think_text": true,
+      "no_web_ui": true,
+      "one_slot_context": true,
+      "reasoning_off_template": true,
+      "rendered_count_matches_runtime": true,
+      "runtime_build": true,
+      "schema_enforced_hostile_format": true,
+      "slot_idle_after_probe": true,
+      "special_token_detection": true,
+      "text_only": true,
+      "unsupported_grammar_rejected": true,
+      "web_ui_absent": true
+    }
+  },
+  "chat_template_sha256": "7f0e529032c25183bcd66c7f238da2d377f43be754a94e2725a58c4e16d2ed67",
+  "conversion_repo": "unsloth/Qwen3.5-9B-GGUF",
+  "conversion_revision": "3885219b6810b007914f3a7950a8d1b469d598a5",
+  "evaluation_report": "reports/brain/benchmark-20261010-181513.json (synthetic structural/operational benchmark only; no faculty evaluation)",
+  "executable_sha256": "969101c6b9c16653e8f8a82a13ab3f4d30698e3177602e77c568304c01a89530",
+  "gguf_bytes": 5680522464,
+  "gguf_filename": "Qwen3.5-9B-Q4_K_M.gguf",
+  "gguf_sha256": "03b74727a860a56338e042c4420bb3f04b2fec5734175f4cb9fa853daf52b7e8",
+  "gguf_upstream_sha256": "03b74727a860a56338e042c4420bb3f04b2fec5734175f4cb9fa853daf52b7e8",
+  "launch_args_redacted": [
+    "--model",
+    "Qwen3.5-9B-Q4_K_M.gguf",
+    "--alias",
+    "brain-local-v02",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "8080",
+    "--ctx-size",
+    "4096",
+    "--parallel",
+    "1",
+    "--n-gpu-layers",
+    "99",
+    "--fit",
+    "off",
+    "--threads",
+    "4",
+    "--threads-batch",
+    "4",
+    "--batch-size",
+    "256",
+    "--ubatch-size",
+    "128",
+    "--flash-attn",
+    "on",
+    "--cache-type-k",
+    "f16",
+    "--cache-type-v",
+    "f16",
+    "--jinja",
+    "--reasoning",
+    "off",
+    "--no-webui",
+    "--no-cache-prompt",
+    "--cache-ram",
+    "0",
+    "--no-context-shift",
+    "--no-mmproj",
+    "--offline",
+    "--api-key-file",
+    "<redacted>",
+    "--metrics"
+  ],
+  "license_reference": "Qwen/Qwen3.5-9B@c202236235762e1c871ad0ccb60c8ee5ba337b9a card license: apache-2.0; GGUF conversion unsloth/Qwen3.5-9B-GGUF@3885219b6810b007914f3a7950a8d1b469d598a5",
+  "limits": {
+    "brain_deadline_seconds": 30.0,
+    "context_tokens": 4096,
+    "min_free_vram_mib": 512,
+    "output_tokens": 1024,
+    "parallel": 1,
+    "prompt_tokens": 2816,
+    "queue_capacity": 8,
+    "queue_wait_seconds": 8.0,
+    "reserve_tokens": 256,
+    "response_bytes": 262144
+  },
+  "measured_placement": {
+    "buffers_mib": {
+      "CPU_Mapped:model": 545.62,
+      "CUDA0:KV": 128.0,
+      "CUDA0:RS": 50.25,
+      "CUDA0:compute": 27.01,
+      "CUDA0:model": 4861.28,
+      "CUDA_Host:compute": 9.01
+    },
+    "offloaded_layers": 33,
+    "total_layers": 33
+  },
+  "measured_resources": {
+    "cancellation": {
+      "outcome": "owned-server restart + re-probe",
+      "recovery_seconds": 16.2,
+      "slot_idle_within_1s": false,
+      "source": "tests/brain/real_model/test_local_model.py::test_real_B25_B26_cancellation_and_slot_recovery"
+    },
+    "idle_after_load": {
+      "disk_free_mib": 269361,
+      "gpu": {
+        "driver": "610.88",
+        "free_mib": 1824,
+        "name": "NVIDIA GeForce RTX 3070 Ti",
+        "total_mib": 8192,
+        "used_mib": 6194
+      },
+      "platform": "win32",
+      "ram": {
+        "available_mib": 13401,
+        "commit_available_mib": 12770,
+        "commit_limit_mib": 37359,
+        "total_mib": 32678
+      }
+    },
+    "synthetic_benchmark": {
+      "cases": 42,
+      "cpu_services_loaded_concurrently": false,
+      "decode_tokens_per_s": 83.0,
+      "latency_ms": {
+        "n": 39,
+        "p50": 1922.0,
+        "p95": 4812.1,
+        "p99": 4813.0
+      },
+      "prefill_tokens_per_s": 1817.8,
+      "report": "reports/brain/benchmark-20261010-181513.json",
+      "vram_min_free_mib": 1854
+    }
+  },
+  "model_id": "Qwen/Qwen3.5-9B",
+  "prompt_hashes": {
+    "answer_draft": "2174ddbafd0d38aed1eff8b8c39eeb0961d6529e9839db857b6e3d7b74e4bb53",
+    "tutor_clue": "75672496608f65d21f4eacdb052061b3ded72a1fe0deb303163fc2743a6986c8"
+  },
+  "release_ready": false,
+  "runtime_commit": "43fe9c64281ef735046adc025e9e7559a1f659a5",
+  "runtime_release": "b11435-43fe9c642",
+  "sampling_profiles": {
+    "grounded-dev-0.2": {
+      "frequency_penalty": 0.0,
+      "min_p": 0.0,
+      "presence_penalty": 0.0,
+      "profile_version": "grounded-dev-0.2",
+      "repeat_penalty": 1.0,
+      "seed": 20261010,
+      "temperature": 0.2,
+      "top_k": 20,
+      "top_p": 0.9
+    }
+  },
+  "schema_hash": "7b793365f8fa261e4521f09a97291401e1845d78011a11964309d3371882d3b6",
+  "schema_version": "brain-manifest-0.3",
+  "upstream_revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a"
+}
