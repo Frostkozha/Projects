@@ -1,0 +1,32 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "category": {
+      "enum": [
+        "answer_error",
+        "source_issue",
+        "other"
+      ],
+      "title": "Category",
+      "type": "string"
+    },
+    "message": {
+      "anyOf": [
+        {
+          "maxLength": 2000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Message"
+    }
+  },
+  "required": [
+    "category",
+    "message"
+  ],
+  "title": "ReportInput",
+  "type": "object"
+}

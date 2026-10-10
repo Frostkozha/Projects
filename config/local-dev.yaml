@@ -1,0 +1,55 @@
+# Coordinator DEVELOPMENT profile: real retriever (your indexed notes), real local Brain (Qwen3.5-9B) and real NLI
+# verifier; the gate runs its deterministic rule engine with fixed fixture scores because no trained gate bundle
+# exists yet. Readiness label: development_mixed. Synthetic dev identities only. Not for real students.
+schema_version: tutor-config-0.3
+profile: development
+tenant_id: dev-tenant
+course_id: histology-dev
+host: 127.0.0.1
+port: 8000
+approved_roots: [".", "D:/models", "D:/llama-cuda"]
+db_path: artifacts/tutor/dev/app.sqlite
+fingerprint_key_file: secrets/tutor-fingerprint.key
+cookie_key_file: secrets/tutor-cookie.key
+notice:
+  version: dev-notice-0.2
+  text: "This is a development AI study aid for the approved histology material. Answers are drafted by a local AI model and checked against course sources, but can still be wrong. Do not enter personal or health information. It does not give advice about any real person."
+identity:
+  adapter: dev_cookie
+components:
+  gate_config: config/development.yaml
+  library_registry: config/library_registry.yaml
+  gate_scoring: fixture
+  gate_tokenizer: e5
+  retriever: real
+  retriever_profile: config/retriever_real_dev.yaml
+  brain: local
+  brain_config: config/brain-local-9b.yaml
+  verifier_profile: config/verifier_real_dev.yaml
+item_bank: config/items/histology_dev_bank.json
+topic_registry: config/items/histology_dev_topics.json
+capacity:
+  generated_active: 1
+  generated_waiting: 8
+  generated_wait_seconds: 8
+  per_session_pending: 1
+  per_identity_pending: 2
+  input_capacity: 16
+deadlines:
+  whole_seconds: 60
+  gate_seconds: 2
+  context_seconds: 2
+  retriever_seconds: 5
+  brain_seconds: 30
+  verifier_seconds: 20
+  delivery_seconds: 2
+breaker:
+  failures: 3
+  window_seconds: 60
+  cooldown_seconds: 30
+features:
+  tutor_clue: false
+  topic_indicator: true
+  a4_educational: false
+response_buffer_seconds: 300
+session_ttl_minutes: 30

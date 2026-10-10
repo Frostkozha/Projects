@@ -16,6 +16,8 @@ dependencies = [
   "uvicorn",
   "pypdf",
   "spacy",
+  "httpx",
+  "PyJWT[crypto]",
 ]
 
 [project.optional-dependencies]
@@ -23,7 +25,7 @@ model = ["torch", "transformers"]
 dev = ["pytest", "httpx"]
 
 [tool.setuptools.packages.find]
-include = ["brain*", "gate_classifier*", "training*", "retriever*", "tools*", "contracts*", "verifier*", "evaluation*"]
+include = ["tutor_app*", "brain*", "gate_classifier*", "training*", "retriever*", "tools*", "contracts*", "verifier*", "evaluation*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

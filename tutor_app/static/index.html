@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Histology Study Tutor</title>
+<link rel="stylesheet" href="/static/app.css">
+<script src="/static/app.js" defer></script>
+</head>
+<body>
+<header class="top">
+  <h1>Histology Study Tutor</h1>
+  <p class="tag" id="profile-tag" aria-live="polite"></p>
+</header>
+
+<main id="main">
+  <section id="login" class="card" hidden aria-labelledby="login-h">
+    <h2 id="login-h">Development sign-in</h2>
+    <p>This local build uses synthetic development identities, not your university account.</p>
+    <form id="login-form">
+      <label for="login-user">Development user name (lowercase letters, digits, hyphens)</label>
+      <input id="login-user" name="user" required pattern="[a-z0-9-]{1,32}" value="student-a" autocomplete="off">
+      <button type="submit">Sign in</button>
+    </form>
+  </section>
+
+  <section id="notice" class="card" hidden aria-labelledby="notice-h">
+    <h2 id="notice-h">Before you start</h2>
+    <p id="notice-text"></p>
+    <button id="notice-accept" type="button">I understand and accept</button>
+  </section>
+
+  <section id="chat" hidden aria-label="Tutor conversation">
+    <div class="toolbar">
+      <fieldset class="modes">
+        <legend>Mode</legend>
+        <label><input type="radio" name="mode" value="answer" checked> Answer</label>
+        <label><input type="radio" name="mode" value="tutor"> Tutor</label>
+        <label><input type="radio" name="mode" value="quiz"> Quiz</label>
+      </fieldset>
+      <button id="new-session" type="button" class="secondary">New session</button>
+    </div>
+    <p class="hint" id="mode-hint"></p>
+    <ol id="log" class="log" aria-live="polite"></ol>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <form id="ask-form" class="ask">
+      <label for="ask-input" class="sr-only">Your question</label>
+      <textarea id="ask-input" rows="2" maxlength="4000" placeholder="Ask about the approved course material"></textarea>
+      <div class="ask-actions">
+        <button id="send" type="submit">Send</button>
+        <button id="cancel" type="button" class="secondary" hidden>Cancel</button>
+        <button id="retry" type="button" class="secondary" hidden>Retry</button>
+      </div>
+    </form>
+  </section>
+
+  <aside id="evidence" class="card evidence" hidden aria-labelledby="evidence-h">
+    <h2 id="evidence-h">Source</h2>
+    <p class="meta" id="evidence-meta"></p>
+    <pre id="evidence-text"></pre>
+    <button id="evidence-close" type="button" class="secondary">Close source</button>
+  </aside>
+</main>
+</body>
+</html>

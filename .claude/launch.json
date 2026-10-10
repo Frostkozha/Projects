@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "tutor-dev",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": ["-m", "tutor_app.cli", "start", "--config", "config/local-dev.yaml"],
+      "port": 8000
+    },
+    {
+      "name": "tutor-fixture",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": ["-m", "tutor_app.cli", "start", "--config", "config/fixture.yaml"],
+      "port": 8000
+    }
+  ]
+}

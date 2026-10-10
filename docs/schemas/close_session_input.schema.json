@@ -1,0 +1,15 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "expected_session_revision": {
+      "minimum": 0,
+      "title": "Expected Session Revision",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "expected_session_revision"
+  ],
+  "title": "CloseSessionInput",
+  "type": "object"
+}

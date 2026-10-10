@@ -1,0 +1,26 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "error_code": {
+      "title": "Error Code",
+      "type": "string"
+    },
+    "request_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Request Id"
+    }
+  },
+  "required": [
+    "error_code",
+    "request_id"
+  ],
+  "title": "ErrorEnvelope",
+  "type": "object"
+}
