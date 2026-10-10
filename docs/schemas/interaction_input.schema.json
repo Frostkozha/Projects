@@ -1,0 +1,65 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "text": {
+      "title": "Text",
+      "type": "string"
+    },
+    "requested_mode": {
+      "anyOf": [
+        {
+          "enum": [
+            "answer",
+            "tutor",
+            "quiz"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Requested Mode"
+    },
+    "session_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Session Id"
+    },
+    "expected_session_revision": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Expected Session Revision"
+    },
+    "notice_version": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9._-]+$",
+      "title": "Notice Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "text",
+    "requested_mode",
+    "session_id",
+    "expected_session_revision",
+    "notice_version"
+  ],
+  "title": "InteractionInput",
+  "type": "object"
+}

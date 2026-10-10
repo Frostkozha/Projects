@@ -1,0 +1,23 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "notice_version": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9._-]+$",
+      "title": "Notice Version",
+      "type": "string"
+    },
+    "accepted": {
+      "const": true,
+      "title": "Accepted",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "notice_version",
+    "accepted"
+  ],
+  "title": "NoticeAcceptInput",
+  "type": "object"
+}

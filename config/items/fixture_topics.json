@@ -1,0 +1,15 @@
+{
+  "schema_version": "topic-registry-0.2",
+  "registry_version": "fixture-topics-0.1",
+  "course_id": "histology-dev",
+  "topics": [
+    {
+      "topic_id": "epithelium",
+      "title": "Epithelium",
+      "aliases": [
+        "epithelium",
+        "epithelial tissue"
+      ]
+    }
+  ]
+}

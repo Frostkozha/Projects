@@ -1,0 +1,229 @@
+{
+  "schema_version": "item-bank-0.2",
+  "bank_version": "histology-dev-bank-0.1",
+  "tenant_id": "dev-tenant",
+  "course_id": "histology-dev",
+  "review_status": "development_unreviewed",
+  "quiz_items": [
+    {
+      "item_id": "q-potency-zygote",
+      "item_version": "1",
+      "tenant_id": "dev-tenant",
+      "course_id": "histology-dev",
+      "approval_reference": "DEV-UNREVIEWED-2026-10-10",
+      "status": "live",
+      "review_due_at": "2027-06-30",
+      "topic_id": "stem-cells",
+      "question": "Which potency level does the zygote have?",
+      "options": [
+        {
+          "option_id": "A",
+          "text": "Pluripotent"
+        },
+        {
+          "option_id": "B",
+          "text": "Totipotent"
+        },
+        {
+          "option_id": "C",
+          "text": "Multipotent"
+        },
+        {
+          "option_id": "D",
+          "text": "Unipotent"
+        }
+      ],
+      "correct_option_id": "B",
+      "reviewed_explanation": "The zygote is totipotent: it can differentiate into any cell type, including cells of the placenta.",
+      "evidence_passage_ids": [
+        "psg-4474033351e021cf86925c7a563f0d447a75e357"
+      ]
+    },
+    {
+      "item_id": "q-potency-pluri",
+      "item_version": "1",
+      "tenant_id": "dev-tenant",
+      "course_id": "histology-dev",
+      "approval_reference": "DEV-UNREVIEWED-2026-10-10",
+      "status": "live",
+      "review_due_at": "2027-06-30",
+      "topic_id": "stem-cells",
+      "question": "What can pluripotent stem cells NOT form?",
+      "options": [
+        {
+          "option_id": "A",
+          "text": "Any cell type of the body"
+        },
+        {
+          "option_id": "B",
+          "text": "Blood cells"
+        },
+        {
+          "option_id": "C",
+          "text": "Placenta and other extra-embryonic cells"
+        },
+        {
+          "option_id": "D",
+          "text": "Cardiomyocytes"
+        }
+      ],
+      "correct_option_id": "C",
+      "reviewed_explanation": "Pluripotent stem cells can become any cell type in the body but cannot form the trophoblast and extra-embryonic cells such as the placenta.",
+      "evidence_passage_ids": [
+        "psg-4474033351e021cf86925c7a563f0d447a75e357"
+      ]
+    },
+    {
+      "item_id": "q-unipotent",
+      "item_version": "1",
+      "tenant_id": "dev-tenant",
+      "course_id": "histology-dev",
+      "approval_reference": "DEV-UNREVIEWED-2026-10-10",
+      "status": "live",
+      "review_due_at": "2027-06-30",
+      "topic_id": "stem-cells",
+      "question": "Which example is given for unipotent cells?",
+      "options": [
+        {
+          "option_id": "A",
+          "text": "Cardiomyocytes"
+        },
+        {
+          "option_id": "B",
+          "text": "Lymphoid stem cell"
+        },
+        {
+          "option_id": "C",
+          "text": "Zygote"
+        },
+        {
+          "option_id": "D",
+          "text": "Embryonic stem cells"
+        }
+      ],
+      "correct_option_id": "A",
+      "reviewed_explanation": "Unipotent is the lowest level: the cell differentiates into only a single cell type, for example cardiomyocytes.",
+      "evidence_passage_ids": [
+        "psg-d9a454a7ef93fc04ed1dc0cef7bdbb05cf5f6b31"
+      ]
+    },
+    {
+      "item_id": "q-ipsc-genes",
+      "item_version": "1",
+      "tenant_id": "dev-tenant",
+      "course_id": "histology-dev",
+      "approval_reference": "DEV-UNREVIEWED-2026-10-10",
+      "status": "live",
+      "review_due_at": "2027-06-30",
+      "topic_id": "stem-cells",
+      "question": "Which set of genes is used to reprogram adult cells into iPS cells?",
+      "options": [
+        {
+          "option_id": "A",
+          "text": "Oct4, Sox2, C-Myc, Klf4"
+        },
+        {
+          "option_id": "B",
+          "text": "G-CSF only"
+        },
+        {
+          "option_id": "C",
+          "text": "Insulin genes"
+        },
+        {
+          "option_id": "D",
+          "text": "Trophoblast genes"
+        }
+      ],
+      "correct_option_id": "A",
+      "reviewed_explanation": "iPS cells are created by reprogramming adult cells with the pluripotent genes Oct4, Sox2, C-Myc and Klf4.",
+      "evidence_passage_ids": [
+        "psg-5bd97e9d80cb026ee828bf3818d2a5cfe3ca4337"
+      ]
+    },
+    {
+      "item_id": "q-esc-source",
+      "item_version": "1",
+      "tenant_id": "dev-tenant",
+      "course_id": "histology-dev",
+      "approval_reference": "DEV-UNREVIEWED-2026-10-10",
+      "status": "live",
+      "review_due_at": "2027-06-30",
+      "topic_id": "stem-cells",
+      "question": "From which structure are embryonic stem cells harvested?",
+      "options": [
+        {
+          "option_id": "A",
+          "text": "Bone marrow"
+        },
+        {
+          "option_id": "B",
+          "text": "The blastocyst (3-5 day embryo)"
+        },
+        {
+          "option_id": "C",
+          "text": "Adult skin"
+        },
+        {
+          "option_id": "D",
+          "text": "The placenta"
+        }
+      ],
+      "correct_option_id": "B",
+      "reviewed_explanation": "Embryonic stem cells are harvested from the blastocyst, a 3-5 day embryo.",
+      "evidence_passage_ids": [
+        "psg-b76c281d52534ed213efe823aa198f811a22f0fb"
+      ]
+    }
+  ],
+  "tutor_items": [
+    {
+      "item_id": "t-stem-properties",
+      "item_version": "1",
+      "tenant_id": "dev-tenant",
+      "course_id": "histology-dev",
+      "approval_reference": "DEV-UNREVIEWED-2026-10-10",
+      "status": "live",
+      "review_due_at": "2027-06-30",
+      "topic_id": "stem-cells",
+      "question": "What are the three main properties of stem cells?",
+      "expected_answer": "Self-renewal, differentiation and potency.",
+      "reviewed_explanation": "The notes list three properties: self-renewal (a stem cell generates a specialized daughter cell and a new copy of itself), differentiation (it becomes a specialized cell) and potency (its ability to differentiate into specialized cell types).",
+      "evidence_passage_ids": [
+        "psg-652c3a4d495d752f4cd0f6c7a3c9085d55c72fc4"
+      ]
+    },
+    {
+      "item_id": "t-hsc-mobilization",
+      "item_version": "1",
+      "tenant_id": "dev-tenant",
+      "course_id": "histology-dev",
+      "approval_reference": "DEV-UNREVIEWED-2026-10-10",
+      "status": "live",
+      "review_due_at": "2027-06-30",
+      "topic_id": "stem-cells",
+      "question": "What is stem cell mobilization in hematopoietic stem cell therapy?",
+      "expected_answer": "Using medications such as G-CSF and chemotherapy to move HSCs from the bone marrow into the bloodstream.",
+      "reviewed_explanation": "Mobilization is the process of using medications such as growth factor (G-CSF) and chemotherapy to move hematopoietic stem cells from the bone marrow into the bloodstream, before collection.",
+      "evidence_passage_ids": [
+        "psg-98a75383afc148e4a32f7b333eb7ee4b0be6e31d"
+      ]
+    },
+    {
+      "item_id": "t-oligopotent",
+      "item_version": "1",
+      "tenant_id": "dev-tenant",
+      "course_id": "histology-dev",
+      "approval_reference": "DEV-UNREVIEWED-2026-10-10",
+      "status": "live",
+      "review_due_at": "2027-06-30",
+      "topic_id": "stem-cells",
+      "question": "How does an oligopotent stem cell differ from a multipotent one? Give the example from the notes.",
+      "expected_answer": "It is similar but more limited; example: lymphoid stem cell giving T and B cells.",
+      "reviewed_explanation": "Oligopotent stem cells are similar to multipotent cells but more limited. The example given is the lymphoid stem cell, which gives rise to T and B cells.",
+      "evidence_passage_ids": [
+        "psg-d9a454a7ef93fc04ed1dc0cef7bdbb05cf5f6b31"
+      ]
+    }
+  ]
+}

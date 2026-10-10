@@ -1,0 +1,95 @@
+{
+  "schema_version": "item-bank-0.2",
+  "bank_version": "fixture-bank-0.1",
+  "tenant_id": "dev-tenant",
+  "course_id": "histology-dev",
+  "review_status": "synthetic_fixture",
+  "quiz_items": [
+    {
+      "item_id": "fq-1",
+      "item_version": "1",
+      "tenant_id": "dev-tenant",
+      "course_id": "histology-dev",
+      "approval_reference": "SYNTHETIC-FIXTURE",
+      "status": "live",
+      "review_due_at": "2099-01-01",
+      "topic_id": "epithelium",
+      "question": "Which epithelium lines alveoli?",
+      "options": [
+        {
+          "option_id": "A",
+          "text": "Stratified squamous"
+        },
+        {
+          "option_id": "B",
+          "text": "Simple squamous"
+        }
+      ],
+      "correct_option_id": "B",
+      "reviewed_explanation": "Simple squamous epithelium lines alveoli and blood vessels.",
+      "evidence_passage_ids": [
+        "fixture-p2"
+      ]
+    },
+    {
+      "item_id": "fq-2",
+      "item_version": "1",
+      "tenant_id": "dev-tenant",
+      "course_id": "histology-dev",
+      "approval_reference": "SYNTHETIC-FIXTURE",
+      "status": "live",
+      "review_due_at": "2099-01-01",
+      "topic_id": "epithelium",
+      "question": "What do goblet cells secrete?",
+      "options": [
+        {
+          "option_id": "A",
+          "text": "Mucus"
+        },
+        {
+          "option_id": "B",
+          "text": "Keratin"
+        }
+      ],
+      "correct_option_id": "A",
+      "reviewed_explanation": "Goblet cells secrete mucus.",
+      "evidence_passage_ids": [
+        "fixture-p3"
+      ]
+    }
+  ],
+  "tutor_items": [
+    {
+      "item_id": "ft-1",
+      "item_version": "1",
+      "tenant_id": "dev-tenant",
+      "course_id": "histology-dev",
+      "approval_reference": "SYNTHETIC-FIXTURE",
+      "status": "live",
+      "review_due_at": "2099-01-01",
+      "topic_id": "epithelium",
+      "question": "Describe simple squamous epithelium.",
+      "expected_answer": "FIXTURE-HIDDEN-KEY one layer of flat cells",
+      "reviewed_explanation": "Simple squamous epithelium is a single layer of flat cells.",
+      "evidence_passage_ids": [
+        "fixture-p1"
+      ]
+    },
+    {
+      "item_id": "ft-2",
+      "item_version": "1",
+      "tenant_id": "dev-tenant",
+      "course_id": "histology-dev",
+      "approval_reference": "SYNTHETIC-FIXTURE",
+      "status": "live",
+      "review_due_at": "2099-01-01",
+      "topic_id": "epithelium",
+      "question": "Where is simple squamous epithelium found?",
+      "expected_answer": "FIXTURE-HIDDEN-KEY alveoli and vessels",
+      "reviewed_explanation": "Simple squamous epithelium lines alveoli and blood vessels.",
+      "evidence_passage_ids": [
+        "fixture-p2"
+      ]
+    }
+  ]
+}

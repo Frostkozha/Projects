@@ -1,0 +1,318 @@
+{
+  "$defs": {
+    "Activity": {
+      "additionalProperties": false,
+      "properties": {
+        "item_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9._-]+$",
+          "title": "Item Id",
+          "type": "string"
+        },
+        "item_version": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9._-]+$",
+          "title": "Item Version",
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "tutor",
+            "quiz"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "phase": {
+          "enum": [
+            "question",
+            "feedback"
+          ],
+          "title": "Phase",
+          "type": "string"
+        },
+        "question": {
+          "title": "Question",
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "$ref": "#/$defs/ActivityOption"
+          },
+          "title": "Options",
+          "type": "array"
+        }
+      },
+      "required": [
+        "item_id",
+        "item_version",
+        "mode",
+        "phase",
+        "question",
+        "options"
+      ],
+      "title": "Activity",
+      "type": "object"
+    },
+    "ActivityOption": {
+      "additionalProperties": false,
+      "properties": {
+        "option_id": {
+          "enum": [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E"
+          ],
+          "title": "Option Id",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "option_id",
+        "text"
+      ],
+      "title": "ActivityOption",
+      "type": "object"
+    },
+    "Citation": {
+      "additionalProperties": false,
+      "properties": {
+        "citation_id": {
+          "maximum": 5,
+          "minimum": 1,
+          "title": "Citation Id",
+          "type": "integer"
+        },
+        "passage_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9._-]+$",
+          "title": "Passage Id",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "source_version": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9._-]+$",
+          "title": "Source Version",
+          "type": "string"
+        },
+        "locator": {
+          "$ref": "#/$defs/LocatorOut"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "citation_id",
+        "passage_id",
+        "title",
+        "source_version",
+        "locator",
+        "url"
+      ],
+      "title": "Citation",
+      "type": "object"
+    },
+    "LocatorOut": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "start": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Start"
+        },
+        "end": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "End"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "anchor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Anchor"
+        }
+      },
+      "required": [
+        "kind",
+        "start",
+        "end",
+        "label",
+        "anchor"
+      ],
+      "title": "LocatorOut",
+      "type": "object"
+    },
+    "SessionView": {
+      "additionalProperties": false,
+      "properties": {
+        "session_id": {
+          "title": "Session Id",
+          "type": "string"
+        },
+        "revision": {
+          "minimum": 0,
+          "title": "Revision",
+          "type": "integer"
+        },
+        "state": {
+          "enum": [
+            "idle",
+            "awaiting_response",
+            "paused",
+            "closed"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "answer",
+            "tutor",
+            "quiz"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "expires_at": {
+          "title": "Expires At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "session_id",
+        "revision",
+        "state",
+        "mode",
+        "expires_at"
+      ],
+      "title": "SessionView",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "student-reply-0.2",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "response_code": {
+      "enum": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7"
+      ],
+      "title": "Response Code",
+      "type": "string"
+    },
+    "content_type": {
+      "enum": [
+        "generated",
+        "fixed",
+        "approved_item"
+      ],
+      "title": "Content Type",
+      "type": "string"
+    },
+    "body": {
+      "title": "Body",
+      "type": "string"
+    },
+    "notices": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Notices",
+      "type": "array"
+    },
+    "citations": {
+      "items": {
+        "$ref": "#/$defs/Citation"
+      },
+      "title": "Citations",
+      "type": "array"
+    },
+    "activity": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Activity"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "session": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SessionView"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "request_id",
+    "response_code",
+    "content_type",
+    "body",
+    "notices",
+    "citations",
+    "activity",
+    "session"
+  ],
+  "title": "StudentReply",
+  "type": "object"
+}

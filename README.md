@@ -1,4 +1,8 @@
-# Medical AI Education Project, Module A: Gate Classifier, Retriever and Verifier v0.2 (English-only)
+# Medical AI Education Project, Module A: Histology Study Tutor (English-only, development prototype)
+
+**Chat with the whole system:** close any other llama server on port 8080, run `scripts\start-tutor.bat`
+(or `python -m tutor_app.cli start --config config/local-dev.yaml`) and open http://127.0.0.1:8000/.
+See [docs/integration.md](docs/integration.md).
 
 Packages for the histology study tutor:
 
@@ -7,6 +11,8 @@ Packages for the histology study tutor:
   See [Retriever](#retriever-v02) below.
 - `contracts/` and `verifier/`: sentence-level Brain draft contract and claim verification
   (`Verifier Technical Plan English v0.2`). See [docs/verifier.md](docs/verifier.md).
+- `tutor_app/`: the coordinator, API, sessions, delivery transaction and chat page
+  (`System Integration Technical and Coding Plan v0.3`). See [docs/integration.md](docs/integration.md).
 - `brain/`: local drafting service on Qwen3.5-9B Q4_K_M via llama.cpp (`Brain AI Technical and Coding
   Plan v0.3`). See [docs/brain.md](docs/brain.md).
 

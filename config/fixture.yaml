@@ -1,0 +1,53 @@
+# Coordinator FIXTURE profile: synthetic data and deterministic adapters only (tests, CI). Never real_model.
+schema_version: tutor-config-0.3
+profile: fixture
+tenant_id: dev-tenant
+course_id: histology-dev
+host: 127.0.0.1
+port: 8000
+approved_roots: ["."]
+db_path: artifacts/tutor/fixture/app.sqlite
+fingerprint_key_file: secrets/tutor-fingerprint.key
+cookie_key_file: secrets/tutor-cookie.key
+notice:
+  version: fixture-notice-0.2
+  text: "This is a development AI study aid for the approved histology material. Answers are drafted by a local AI model and checked against course sources, but can still be wrong. Do not enter personal or health information. It does not give advice about any real person."
+identity:
+  adapter: dev_cookie
+components:
+  gate_config: config/development.yaml
+  library_registry: config/library_registry.yaml
+  gate_scoring: fixture
+  gate_tokenizer: fixture
+  retriever: fixture
+  retriever_profile: null
+  brain: fixture
+  brain_config: null
+  verifier_profile: config/verifier_development.yaml
+item_bank: config/items/fixture_bank.json
+topic_registry: config/items/fixture_topics.json
+capacity:
+  generated_active: 1
+  generated_waiting: 8
+  generated_wait_seconds: 8
+  per_session_pending: 1
+  per_identity_pending: 2
+  input_capacity: 16
+deadlines:
+  whole_seconds: 60
+  gate_seconds: 2
+  context_seconds: 2
+  retriever_seconds: 5
+  brain_seconds: 30
+  verifier_seconds: 5
+  delivery_seconds: 2
+breaker:
+  failures: 3
+  window_seconds: 60
+  cooldown_seconds: 30
+features:
+  tutor_clue: false
+  topic_indicator: true
+  a4_educational: false
+response_buffer_seconds: 300
+session_ttl_minutes: 30

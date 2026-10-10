@@ -1,0 +1,19 @@
+{
+  "schema_version": "topic-registry-0.2",
+  "registry_version": "histology-topics-dev-0.1",
+  "course_id": "histology-dev",
+  "topics": [
+    {
+      "topic_id": "stem-cells",
+      "title": "Stem cells",
+      "aliases": [
+        "stem cells",
+        "stem cell",
+        "stem cell potency",
+        "potency",
+        "ips cells",
+        "ipsc"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "record_type": "fixture load run (synthetic adapters; not a real-model measurement)",
+  "requests": 20,
+  "status_counts": {
+    "200": 20
+  },
+  "p50_ms": 40.8,
+  "p95_ms": 52.5,
+  "p99_ms": 60.8
+}

@@ -1,0 +1,63 @@
+{
+  "record_type": "real-model development run (synthetic dev identities, faculty-unreviewed notes; gate in fixture scoring)",
+  "profile": "development",
+  "concurrent_identities": 3,
+  "requests": 6,
+  "codes": {
+    "A5": 3,
+    "CAPACITY_EXCEEDED": 2,
+    "A2": 1
+  },
+  "latency_ms": {
+    "p50": 8025.8,
+    "p95": 14610.1,
+    "p99": 14610.1,
+    "method": "nearest-rank",
+    "max": 14610.1
+  },
+  "wall_s": 22.3,
+  "vram": {
+    "samples": 39,
+    "min_free_mib": 1787,
+    "max_free_mib": 1842
+  },
+  "ram_end": {
+    "total_mib": 32678,
+    "available_mib": 10579,
+    "commit_limit_mib": 37359,
+    "commit_available_mib": 7120
+  },
+  "degraded": [],
+  "rows": [
+    {
+      "status": 200,
+      "code": "A5",
+      "ms": 6046.5
+    },
+    {
+      "status": 429,
+      "code": "CAPACITY_EXCEEDED",
+      "ms": 8037.8
+    },
+    {
+      "status": 429,
+      "code": "CAPACITY_EXCEEDED",
+      "ms": 8013.8
+    },
+    {
+      "status": 200,
+      "code": "A5",
+      "ms": 14610.1
+    },
+    {
+      "status": 200,
+      "code": "A5",
+      "ms": 11253.2
+    },
+    {
+      "status": 200,
+      "code": "A2",
+      "ms": 7641.0
+    }
+  ]
+}
